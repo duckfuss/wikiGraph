@@ -1,8 +1,3 @@
-import pygame
-import springSim
-import random
-import time
-
 class Graph():
     def __init__(self) -> None:
         # directed graph
@@ -24,18 +19,10 @@ class Graph():
     
 '''
 # test code:
-pygame.init()
 graphy = Graph()
-running = True
 
 graphy.addNode("A", {"B", "C"})
 graphy.addNode("C", {"B", "C"})
 graphy.addNode("D", {"B", "A"})
 
-graphy.draw()
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
 '''

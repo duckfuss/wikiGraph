@@ -9,4 +9,3 @@ sim.introduceNode("A", {"B", "C"})
 running = True
 while running:
     running = sim.updateGraphics()
-

@@ -54,7 +54,3 @@ class Sim():
     def printout(self):
         for i in self.bodyDict:
             print(self.bodyDict[i].position)
-    
-    def returnCoords(self):
-        pass
-
