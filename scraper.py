@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import time
 
-class scraperBot():
+class Scraper():
     def __init__(self) -> None:
         options = webdriver.FirefoxOptions()
         options.add_argument("--width=2560")
@@ -25,5 +25,5 @@ class scraperBot():
             node.click() # type: ignore
             time.sleep(0.1)
 
-duck = scraperBot()
+duck = Scraper()
 duck.scrape("https://en.wikipedia.org/wiki/Duck",10)
