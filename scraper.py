@@ -6,8 +6,6 @@ import time
 class Scraper():
     def __init__(self) -> None:
         options = webdriver.FirefoxOptions()
-        options.add_argument("--width=2560")
-        options.add_argument("--height=1440")
         self.browser = webdriver.Firefox(options=options)
 
     def findNode(self, n=1):

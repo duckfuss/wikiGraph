@@ -12,34 +12,39 @@ class Graph():
         self.rects = {}
 
     def addNode(self, node:str, links:set):
-        # add links to node if node is unseen
+        # add links to node if node is new
         if node not in self.graphDict.keys():
             self.graphDict[node] = links
             self.randAddRect(node)
-        # update a seen node's links
+        # updates a seen node's links
         else:
             self.graphDict[node].update(links)
-        # add any linked nodes that aren't in graph dict
+        # add any implicit linked nodes that aren't in graph dict
         for link in links:
             if link not in self.graphDict.keys():
                 self.graphDict[link] = set()
                 self.randAddRect(link)
 
     def randAddRect(self, node):
+        # places node at random position
         xCoord = random.randrange(0,self.xMax)
         yCoord = random.randrange(0,self.yMax)
         self.rects[node] = pygame.Rect(xCoord, yCoord, 10, 10)
 
     def draw(self):
-        print(self.graphDict)
         for node in self.rects:
             nodeRect = self.rects[node]
             pygame.draw.rect(self.screen, "red", nodeRect)
             for link in self.graphDict[node]:
                 linkRect = self.rects[link]
-                pygame.draw.line(self.screen, "red", (nodeRect.x, nodeRect.y), (linkRect.x, linkRect.y))
+                pygame.draw.line(
+                    self.screen, "red", 
+                    (nodeRect.x, nodeRect.y), 
+                    (linkRect.x, linkRect.y))
         pygame.event.pump()
         pygame.display.flip()
+    
+    
 
 # test code:
 pygame.init()
