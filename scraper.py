@@ -23,5 +23,5 @@ class Scraper():
             node.click() # type: ignore
             time.sleep(0.1)
 
-duck = Scraper()
-duck.scrape("https://en.wikipedia.org/wiki/Duck",10)
+#duck = Scraper()
+#duck.scrape("https://en.wikipedia.org/wiki/Duck",10)

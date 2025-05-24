@@ -5,6 +5,13 @@ import random
 
 class Sim():
     def __init__(self) -> None:
+        # pygame
+        pygame.init()
+        self.clock = pygame.time.Clock()
+        self.xMax, self.yMax = 1280, 720
+        self.screen = pygame.display.set_mode((self.xMax,self.yMax))
+        # pymunk
+        self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
         self.space = pymunk.Space()
         self.space.gravity = 0,0
         self.bodyDict = {}
@@ -32,34 +39,22 @@ class Sim():
                 200, 100, 10
             )
             self.space.add(joint)
+    
+    def updateGraphics(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+        self.screen.fill("GRAY")
+        self.space.debug_draw(self.draw_options)
+        pygame.display.update()
+        self.space.step(0.1)
+        self.clock.tick(60)
+        return True
+        
+    def printout(self):
+        for i in self.bodyDict:
+            print(self.bodyDict[i].position)
+    
+    def returnCoords(self):
+        pass
 
-pygame.init()
-clock = pygame.time.Clock()
-size = 1280, 720
-screen = pygame.display.set_mode(size)
-draw_options = pymunk.pygame_util.DrawOptions(screen)
-sim = Sim()
-
-
-sim.introduceNode("A", {"B", "C"})
-sim.introduceNode("B", {"C"})
-sim.introduceNode("C", {"B", "A"})
-sim.introduceNode("D", {})
-sim.introduceNode("E", {"D", "F"})
-sim.introduceNode("F", {"E", "G"})
-sim.introduceNode("G", {"D", "F"})
-
-
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    screen.fill("GRAY")
-    sim.space.debug_draw(draw_options)
-    pygame.display.update()
-    clock.tick(60)
-    sim.space.step(0.01)
-
-pygame.quit()
