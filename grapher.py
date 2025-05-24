@@ -7,7 +7,8 @@ class Graph():
     def __init__(self) -> None:
         # directed graph
         self.graphDict = {}
-        # pygame boilerplate
+        # graphics boilerplate
+        self.space = pymunk.Space()
         self.xMax, self.yMax = 1280, 720
         self.screen = pygame.display.set_mode((self.xMax,self.yMax))
         self.rects = {}
