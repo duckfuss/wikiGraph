@@ -46,28 +46,6 @@ class Sim():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                p = pymunk.pygame_util.from_pygame(event.pos, self.screen)
-                self.active_shape = None
-                for s in self.space.shapes:
-                    dist = s.point_query(p)[2]
-                    if dist < 0:
-                        self.active_shape = s
-                        self.pulling = True
-                        s.body.angle = (p - s.body.position).angle
-
-            elif event.type == pygame.MOUSEMOTION:
-                self.p = event.pos
-
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if self.pulling:
-                    self.pulling = False
-                    b = self.active_shape.body # type: ignore
-                    p0 = b.position
-                    p1 = pymunk.pygame_util.from_pygame(event.pos, self.screen)
-                    impulse = 0.1 * (p1 - p0).rotated(b.angle)
-                    b.apply_impulse_at_local_point(impulse)
-
 
         self.screen.fill("GRAY")
         self.space.debug_draw(self.draw_options)
