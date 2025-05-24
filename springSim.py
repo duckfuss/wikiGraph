@@ -24,7 +24,7 @@ class Sim():
             body.position = (random.randrange(500,600),
                              random.randrange(250,350))
             self.bodyDict[name] = body
-            circle = pymunk.Circle(body, radius = 20)
+            circle = pymunk.Circle(body, radius = 10)
             self.circleList.append(circle)
             self.space.add(body, circle)
 
@@ -36,13 +36,14 @@ class Sim():
                 self.bodyDict[node],
                 self.bodyDict[link],
                 (0,0),(0,0),
-                200, 100, 10
+                50, 10, 10
             )
             self.space.add(joint)
     
     def updateGraphics(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 return False
         self.screen.fill("GRAY")
         self.space.debug_draw(self.draw_options)
