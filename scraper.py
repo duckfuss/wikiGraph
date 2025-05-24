@@ -14,6 +14,16 @@ class Scraper():
             try:    return self.browser.find_element(By.XPATH, path)
             except NoSuchElementException:  pass
 
+    def collectLinks(self, site, depth=2):
+        self.browser.get(site)
+        linkList = []
+        #for i in range(depth):
+        html = self.findNode()
+        link = html.get_attribute("href") # type: ignore
+        linkList.append(link)
+        print(linkList)
+        return linkList
+
     def scrape(self, startSite, depth=3):
         self.browser.get(startSite)
         for i in range(depth):
