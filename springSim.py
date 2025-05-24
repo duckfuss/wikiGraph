@@ -21,8 +21,8 @@ class Sim():
     def createBodyIfNew(self, name):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=10)
-            body.position = (random.randrange(500,600),
-                             random.randrange(250,350))
+            body.position = (random.randrange(400,700),
+                             random.randrange(100,600))
             self.bodyDict[name] = body
             circle = pymunk.Circle(body, radius = 20)
             self.circleList.append(circle)
@@ -36,7 +36,7 @@ class Sim():
                 self.bodyDict[node],
                 self.bodyDict[link],
                 (0,0),(0,0),
-                50, 50, 10
+                200, 10, 10
             )
             self.space.add(joint)
     
@@ -49,7 +49,7 @@ class Sim():
         self.space.debug_draw(self.draw_options)
         pygame.display.update()
         self.space.step(0.1)
-        self.clock.tick(60)
+        self.clock.tick(120)
         return True
         
     def printout(self):

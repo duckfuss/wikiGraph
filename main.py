@@ -16,9 +16,9 @@ running = True
 start = time.time()
 pageDepth, n = 10, 0
 while running:
-    if (time.time() - start) > 1 and n < pageDepth:
+    if (time.time() - start) > 5 and n < pageDepth:
         start = time.time()
-        n+= 1
+        n += 1
         links = duck.collectLinks(node)
         addNode(node, links)
         print(links)
