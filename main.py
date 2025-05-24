@@ -10,7 +10,6 @@ def addNode(node, links):
 duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
-sim.introduceNode("A", {"B", "C"})
 
 node = "https://en.wikipedia.org/wiki/Duck"
 running = True
