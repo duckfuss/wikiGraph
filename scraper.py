@@ -15,7 +15,7 @@ class scraperBot():
         for i in range(depth):
             print("----------depth:", i)
             link = self.findLink()
-            link.click()
+            link.click() # type: ignore
             time.sleep(1)
 
     def findLink(self, n=1):
