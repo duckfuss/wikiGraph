@@ -7,10 +7,6 @@ class Graph():
     def __init__(self) -> None:
         # directed graph
         self.graphDict = {}
-        # graphics boilerplate
-        self.sim = springSim.Sim()
-        self.xMax, self.yMax = 1280, 720
-        self.screen = pygame.display.set_mode((self.xMax,self.yMax))
 
     def addNode(self, node:str, links:set):
         # add links to node if node is new
@@ -24,16 +20,6 @@ class Graph():
             if link not in self.graphDict.keys():
                 self.graphDict[link] = set()
 
-    def draw(self):
-        
-            for link in self.graphDict[node]:
-                linkRect = self.rects[link]
-                pygame.draw.line(
-                    self.screen, "red", 
-                    (nodeRect.x, nodeRect.y), 
-                    (linkRect.x, linkRect.y))
-            pygame.event.pump()
-            pygame.display.flip()
     
     
 '''
