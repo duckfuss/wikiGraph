@@ -24,7 +24,7 @@ class Sim():
             body.position = (random.randrange(500,600),
                              random.randrange(250,350))
             self.bodyDict[name] = body
-            circle = pymunk.Circle(body, radius = 10)
+            circle = pymunk.Circle(body, radius = 20)
             self.circleList.append(circle)
             self.space.add(body, circle)
 
@@ -36,7 +36,7 @@ class Sim():
                 self.bodyDict[node],
                 self.bodyDict[link],
                 (0,0),(0,0),
-                50, 10, 10
+                50, 50, 10
             )
             self.space.add(joint)
     
