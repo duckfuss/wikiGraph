@@ -20,7 +20,7 @@ class scraperBot():
 
     def findLink(self, n=1):
         for i in range(1,10):
-            path = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/p[" + str(i) + "]/a[" +str(n) + "]"
+            path = "//main/div[3]/div[3]/div[1]/p[" + str(i) + "]/a[" +str(n) + "]"
             try:
                 return self.browser.find_element(By.XPATH, path)
             except NoSuchElementException:
