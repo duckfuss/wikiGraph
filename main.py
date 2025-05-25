@@ -20,24 +20,28 @@ pageBreadth = 3
 node = duck.getRandomPage()
 graph.addNode(node, set())
 
-while SLIndex < maxSeeds:
-    if pagesVisited >= pageDepth:
-        SLIndex += 1
-        if SLIndex < maxSeeds:
-            node = duck.getRandomPage()
-            graph.addNode(node, set())
-            pagesVisited = 0
-            print("-----------------", SLIndex)
-    if graph.graphDict[node] == set():  # If node's new
-        print(pagesVisited, node)
-        links = duck.collectLinks(node, breadth=pageBreadth)
-        graph.addNode(node, links) #type: ignore
-        if links:   node = links[0]
-        else:       pagesVisited += pageDepth
-        pagesVisited += 1
-    else:  # Skip already visited nodes
-        print(f"Skipping already visited page: {node}")
-        pagesVisited += pageDepth  # Ensure program moves on to the next start word
+def exploreLinksAndGraph(startSite, breadth, depth):
+    pagesVisited = 0
+    node = startSite
+    graph.addNode(node, set())
+    while pagesVisited < depth:
+        if graph.graphDict[node] == set():  # If node's new
+            print(pagesVisited, node)
+            links = duck.collectLinks(node, breadth=breadth)
+            graph.addNode(node, links) #type: ignore
+             # abort if cannot find a follow-on link:
+            if links:   node = links[0] 
+            else:       return
+            pagesVisited += 1
+        else:  # Skip already visited nodes
+            print(f"Skipping already visited page: {node}")
+            pagesVisited += pageDepth  # Ensure program moves on to the next start word
+
+
+for seed in range(maxSeeds):
+    exploreLinksAndGraph(duck.getRandomPage(), pageBreadth, pageDepth)
+
+
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")

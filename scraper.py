@@ -21,6 +21,7 @@ class Scraper():
         self.browser.get("https://en.wikipedia.org/wiki/Special:Random")
         return self.browser.current_url
 
+
     def collectLinks(self, site, breadth=2):
         self.browser.get(site)
         linkList = []
