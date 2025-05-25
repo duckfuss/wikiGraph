@@ -23,7 +23,7 @@ class Scraper():
             linkList.append(link)
         return linkList
 
-    def scrape(self, startSite, depth=3):
+    def scrape(self, startSite, depth=3): # unused - main.py controls scraping
         self.browser.get(startSite)
         for i in range(depth):
             node = self.findNode()
@@ -31,6 +31,3 @@ class Scraper():
             print(i, link.replace("https://en.wikipedia.org/wiki/", "")) # type: ignore
             node.click() # type: ignore
             time.sleep(0.1)
-
-#duck = Scraper()
-#duck.scrape("https://en.wikipedia.org/wiki/Duck",10)
