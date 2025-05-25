@@ -7,7 +7,7 @@ class Scraper():
     def __init__(self) -> None:
         options = webdriver.FirefoxOptions()
         self.browser = webdriver.Firefox(options=options)
-        #self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Latin language", "Greek language", "Ancient Greek language", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key", "French language", "Russian language", "Italian language", "Spanish language"]
+        self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key"]
 
     def findNode(self, n=1):
         for i in range(1,10):
@@ -27,11 +27,11 @@ class Scraper():
             html = self.findNode(linkNo)
             if html is None: 
                 return linkList
-            #if html.get_attribute("title") not in self.ignoreList:
-            if "language" not in html.get_attribute("title"): # type: ignore
-                print(html.get_attribute("title"))
-                link = html.get_attribute("href") # type: ignore
-                linkList.append(link)
+            if html.get_attribute("title") not in self.ignoreList:
+                if "language" not in html.get_attribute("title"): # type: ignore
+                    print(html.get_attribute("title"))
+                    link = html.get_attribute("href") # type: ignore
+                    linkList.append(link)
             linkNo += 1
         return linkList
 

@@ -9,7 +9,7 @@ sim = springSim.Sim()
 
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 20
+pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 50
 node = duck.getRandomPage()
 graph.addNode(node, set())
 
@@ -38,6 +38,6 @@ duck.browser.quit()
 for node, links in graph.graphDict.items():
     sim.introduceNode(node, links)
 
-# Keep the graphics running in a loop
+# Keep the graphics running in loop
 while running:
     running = sim.updateGraphics()

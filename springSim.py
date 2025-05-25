@@ -1,6 +1,7 @@
 import pymunk
 import pymunk.pygame_util
 import pygame
+import pygame.freetype
 import random
 
 class Sim():
@@ -8,7 +9,7 @@ class Sim():
         pygame.init()
         self.clock = pygame.time.Clock()
         self.xMax, self.yMax = 1280, 720
-        self.screen = pygame.display.set_mode((self.xMax,self.yMax))
+        self.screen = pygame.display.set_mode((self.xMax, self.yMax))
         self.zoom = 1
         self.offset = pygame.Vector2(0, 0)
         self.dragging = None
@@ -23,6 +24,9 @@ class Sim():
         self.bodyDict = {}
         self.jointList = []
 
+        # Initialize freetype font
+        self.font = pygame.freetype.SysFont(None, 18)
+
     def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
@@ -34,14 +38,14 @@ class Sim():
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
-            # If this body is linked to another, position it near the linked body
+            # If  body is linked to another, place near the linked body
             if linked_to and linked_to in self.bodyDict:
                 linked_body = self.bodyDict[linked_to]
                 offset = pymunk.Vec2d(random.uniform(-50, 50), random.uniform(-50, 50))
                 body.position = linked_body.position + offset
 
     def introduceNode(self, node, links):
-        self.createBodyIfNew(node)  # Create the main node
+        self.createBodyIfNew(node)
         for link in links:
             self.createBodyIfNew(link, linked_to=node)  # Spawn linked nodes near the main node
             joint = pymunk.constraints.DampedSpring(
@@ -122,26 +126,32 @@ class Sim():
         return True
     def updateGraphics(self):
         self.screen.fill("slategray3")
-        #self.space.debug_draw(self.draw_options)
+        # self.space.debug_draw(self.draw_options)
 
         # Repulsion for better layout
         self.apply_repulsion()
-        mpX, mpY = self.xMax/2, self.yMax/2
+        mpX, mpY = self.xMax / 2, self.yMax / 2
         for name, body in self.bodyDict.items():
-            coords = (((body.position - self.offset)  - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+            coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             if name == self.selected:
                 colour = "YELLOW"
             else:
                 colour = "slateblue3"
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
-            # Draw label
-            font = pygame.font.SysFont(None, 18)
-            text = font.render(name.replace("https://en.wikipedia.org/wiki/", ""), True, "BLACK")
-            self.screen.blit(text, (coords[0] + 22, coords[1] - 10))
+
+            # Adjust font size based on zoom level
+            font_size = max(10, int(18 * self.zoom))  # Ensure font size doesn't go below 10
+            self.font.size = font_size
+
+            # Render label using freetype
+            text_surface, rect = self.font.render(
+                name.replace("https://en.wikipedia.org/wiki/", ""), "BLACK"
+            )
+            self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
 
         for joint in self.jointList:
-            coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom)+(mpX, mpY)
-            coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom)+(mpX, mpY)
+            coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+            coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             pygame.draw.line(self.screen, "GRAY", coords1, coords2, 2)
 
             # Draw arrowhead
@@ -151,11 +161,12 @@ class Sim():
             right = pygame.Vector2(direction.y, -direction.x) * 0.5
             arrow_tip = pygame.Vector2(coords2)
             pygame.draw.polygon(
-                self.screen, "slateblue4",
-                [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right]
+                self.screen,
+                "slateblue4",
+                [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right],
             )
 
         pygame.display.update()
-        self.space.step(1/120)
+        self.space.step(1 / 120)
         self.clock.tick(60)
         return self.handleEvents()
