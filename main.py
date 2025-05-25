@@ -3,40 +3,41 @@ import scraper
 import springSim
 import time
 
-def addNode(node, links):
-    graph.addNode(node, links)
-    sim.introduceNode(node,links)
-
 duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
 
-startList = [
-    "https://en.wikipedia.org/wiki/Duck",
-    "https://en.wikipedia.org/wiki/Camptophallus",
-    "https://en.wikipedia.org/wiki/Quantum_computing",
-    "https://en.wikipedia.org/wiki/Train",
-    "https://en.wikipedia.org/wiki/Ascot,_Berkshire"
-]
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex = 10, 0, 0
-node = startList[SLIndex]
+pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 20
+node = duck.getRandomPage()
+graph.addNode(node, set())
 
-while running:
-    if SLIndex < len(startList):
-        if pagesVisited >= pageDepth:
-            SLIndex += 1
-            if SLIndex < len(startList):
-                node = startList[SLIndex]
-                pagesVisited = 0
-                print("-----------------", len(startList), SLIndex)
-        if SLIndex < len(startList) and (time.time() - start) > 0.1:
-            start = time.time()
-            pagesVisited += 1
-            links = duck.collectLinks(node)
-            addNode(node, links)
-            node = links[0] # type: ignore
-            print(node)
-    running = sim.updateGraphics()
+while SLIndex < maxSeeds:
+    if pagesVisited >= pageDepth:
+        SLIndex += 1
+        if SLIndex < maxSeeds:
+            node = duck.getRandomPage()
+            graph.addNode(node, set())
+            pagesVisited = 0
+            print("-----------------", SLIndex)
+    if graph.graphDict[node] == set():  # If node's new
+        print(pagesVisited, node)
+        links = duck.collectLinks(node, breadth=1)
+        graph.addNode(node, links) #type: ignore
+        if links:   node = links[0]
+        else:       pagesVisited += pageDepth
+        pagesVisited += 1
+    else:  # Skip already visited nodes
+        print(f"Skipping already visited page: {node}")
+        pagesVisited += pageDepth  # Ensure program moves on to the next start word
+
 duck.browser.quit()
+
+# Generate graph visualization
+for node, links in graph.graphDict.items():
+    sim.introduceNode(node, links)
+
+# Keep the graphics running in a loop
+while running:
+    running = sim.updateGraphics()

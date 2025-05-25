@@ -7,6 +7,7 @@ class Scraper():
     def __init__(self) -> None:
         options = webdriver.FirefoxOptions()
         self.browser = webdriver.Firefox(options=options)
+        #self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Latin language", "Greek language", "Ancient Greek language", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key", "French language", "Russian language", "Italian language", "Spanish language"]
 
     def findNode(self, n=1):
         for i in range(1,10):
@@ -14,16 +15,27 @@ class Scraper():
             try:    return self.browser.find_element(By.XPATH, path)
             except NoSuchElementException:  pass
 
-    def collectLinks(self, site, depth=2):
+    def getRandomPage(self):
+        self.browser.get("https://en.wikipedia.org/wiki/Special:Random")
+        return self.browser.current_url
+
+    def collectLinks(self, site, breadth=2):
         self.browser.get(site)
         linkList = []
-        for i in range(1, depth+1):
-            html = self.findNode(i)
-            link = html.get_attribute("href") # type: ignore
-            linkList.append(link)
+        linkNo = 1
+        while len(linkList) < breadth:
+            html = self.findNode(linkNo)
+            if html is None: 
+                return linkList
+            #if html.get_attribute("title") not in self.ignoreList:
+            if "language" not in html.get_attribute("title"): # type: ignore
+                print(html.get_attribute("title"))
+                link = html.get_attribute("href") # type: ignore
+                linkList.append(link)
+            linkNo += 1
         return linkList
 
-    def scrape(self, startSite, depth=3): # unused - main.py controls scraping
+    def scrape(self, startSite, depth=3): # unused - main.py controls scraping now
         self.browser.get(startSite)
         for i in range(depth):
             node = self.findNode()
