@@ -7,9 +7,15 @@ duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
 
+# don't change:
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 50
+pagesVisited, SLIndex = 0, 0
+# change at will:
+maxSeeds = 50
+pageDepth = 20
+
+# initialise start node
 node = duck.getRandomPage()
 graph.addNode(node, set())
 
