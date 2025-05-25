@@ -14,15 +14,3 @@ class Graph():
         for link in links:
             if link not in self.graphDict.keys():
                 self.graphDict[link] = set()
-
-    
-    
-'''
-# test code:
-graphy = Graph()
-
-graphy.addNode("A", {"B", "C"})
-graphy.addNode("C", {"B", "C"})
-graphy.addNode("D", {"B", "A"})
-
-'''

@@ -11,6 +11,7 @@ class Sim():
         self.xMax, self.yMax = 1280, 720
         self.screen = pygame.display.set_mode((self.xMax,self.yMax))
         # pymunk
+        self.active_shape = None
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
         self.space = pymunk.Space()
         self.space.gravity = 0,0
@@ -21,8 +22,8 @@ class Sim():
     def createBodyIfNew(self, name):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=10)
-            body.position = (random.randrange(500,600),
-                             random.randrange(250,350))
+            body.position = (random.randrange(400,700),
+                             random.randrange(100,600))
             self.bodyDict[name] = body
             circle = pymunk.Circle(body, radius = 20)
             self.circleList.append(circle)
@@ -36,19 +37,21 @@ class Sim():
                 self.bodyDict[node],
                 self.bodyDict[link],
                 (0,0),(0,0),
-                200, 100, 10
+                200, 2, 10
             )
             self.space.add(joint)
     
     def updateGraphics(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 return False
+
         self.screen.fill("GRAY")
         self.space.debug_draw(self.draw_options)
         pygame.display.update()
-        self.space.step(0.1)
-        self.clock.tick(60)
+        self.space.step(0.25)
+        self.clock.tick(240)
         return True
         
     def printout(self):

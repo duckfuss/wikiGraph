@@ -13,9 +13,16 @@ sim = springSim.Sim()
 
 node = "https://en.wikipedia.org/wiki/Duck"
 running = True
+start = time.time()
+pageDepth, n = 2, 0
 while running:
+    if (time.time() - start) > 0.1 and n < pageDepth:
+        start = time.time()
+        n += 1
+        links = duck.collectLinks(node)
+        addNode(node, links)
+        print(links)
+        node = links[0] # type: ignore
+
     running = sim.updateGraphics()
-    links = duck.collectLinks(node)
-    addNode(node, links)
-    print(links)
-    node = links[0] # type: ignore
+duck.browser.quit()
