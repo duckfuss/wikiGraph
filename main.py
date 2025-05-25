@@ -11,18 +11,32 @@ duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
 
-node = "https://en.wikipedia.org/wiki/Duck"
+startList = [
+    "https://en.wikipedia.org/wiki/Duck",
+    "https://en.wikipedia.org/wiki/Camptophallus",
+    "https://en.wikipedia.org/wiki/Quantum_computing",
+    "https://en.wikipedia.org/wiki/Train",
+    "https://en.wikipedia.org/wiki/Ascot,_Berkshire"
+]
 running = True
 start = time.time()
-pageDepth, n = 2, 0
-while running:
-    if (time.time() - start) > 0.1 and n < pageDepth:
-        start = time.time()
-        n += 1
-        links = duck.collectLinks(node)
-        addNode(node, links)
-        print(links)
-        node = links[0] # type: ignore
+pageDepth, pagesVisited, SLIndex = 10, 0, 0
+node = startList[SLIndex]
 
+while running:
+    if SLIndex < len(startList):
+        if pagesVisited >= pageDepth:
+            SLIndex += 1
+            if SLIndex < len(startList):
+                node = startList[SLIndex]
+                pagesVisited = 0
+                print("-----------------", len(startList), SLIndex)
+        if SLIndex < len(startList) and (time.time() - start) > 0.1:
+            start = time.time()
+            pagesVisited += 1
+            links = duck.collectLinks(node)
+            addNode(node, links)
+            node = links[0] # type: ignore
+            print(node)
     running = sim.updateGraphics()
 duck.browser.quit()
