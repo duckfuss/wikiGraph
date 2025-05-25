@@ -74,7 +74,7 @@ class Sim():
                 return name
         return None
 
-    def updateGraphics(self):
+    def handleEvents(self):
         mpX, mpY = self.xMax/2, self.yMax/2
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -114,13 +114,19 @@ class Sim():
                     mouse_pos = pygame.Vector2(event.pos)
                     delta = (self.pan_start - mouse_pos) / self.zoom
                     self.offset = self.pan_offset_start + delta
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                print("enter")
+                for name, body in self.bodyDict.items():
+                    body.velocity = (0,0)
 
+    def updateGraphics(self):
+        self.handleEvents()
         self.screen.fill("GRAY")
         #self.space.debug_draw(self.draw_options)
 
         # Repulsion for better layout
         self.apply_repulsion()
-
+        mpX, mpY = self.xMax/2, self.yMax/2
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset)  - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             if name == self.selected:
@@ -139,10 +145,5 @@ class Sim():
             pygame.draw.line(self.screen, "RED", coords1, coords2, 2)
 
         pygame.display.update()
-        self.space.step(1/60)
+        self.space.step(1/120)
         self.clock.tick(60)
-        return True
-
-    def printout(self):
-        for i in self.bodyDict:
-            print(self.bodyDict[i].position)
