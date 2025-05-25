@@ -9,7 +9,7 @@ sim = springSim.Sim()
 
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 50
+pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 20
 node = duck.getRandomPage()
 graph.addNode(node, set())
 
@@ -21,12 +21,12 @@ while SLIndex < maxSeeds:
             graph.addNode(node, set())
             pagesVisited = 0
             print("-----------------", SLIndex)
-
-    if graph.graphDict[node] == set():  # If the node hasn't been visited
-        links = duck.collectLinks(node, breadth=1)
-        graph.addNode(node, links)  # type: ignore
-        node = links[0]
+    if graph.graphDict[node] == set():  # If node's new
         print(pagesVisited, node)
+        links = duck.collectLinks(node, breadth=1)
+        graph.addNode(node, links) #type: ignore
+        if links:   node = links[0]
+        else:       pagesVisited += pageDepth
         pagesVisited += 1
     else:  # Skip already visited nodes
         print(f"Skipping already visited page: {node}")

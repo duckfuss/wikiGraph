@@ -23,7 +23,7 @@ class Sim():
         self.bodyDict = {}
         self.jointList = []
 
-    def createBodyIfNew(self, name):
+    def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
             body.position = (random.randrange(400,700), random.randrange(100,600))
@@ -34,14 +34,20 @@ class Sim():
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
+            # If this body is linked to another, position it near the linked body
+            if linked_to and linked_to in self.bodyDict:
+                linked_body = self.bodyDict[linked_to]
+                offset = pymunk.Vec2d(random.uniform(-50, 50), random.uniform(-50, 50))
+                body.position = linked_body.position + offset
+
     def introduceNode(self, node, links):
-        self.createBodyIfNew(node)
+        self.createBodyIfNew(node)  # Create the main node
         for link in links:
-            self.createBodyIfNew(link)
+            self.createBodyIfNew(link, linked_to=node)  # Spawn linked nodes near the main node
             joint = pymunk.constraints.DampedSpring(
                 self.bodyDict[node],
                 self.bodyDict[link],
-                (0,0),(0,0),
+                (0, 0), (0, 0),
                 200, 4, 0.3
             )
             self.jointList.append(joint)
