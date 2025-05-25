@@ -7,35 +7,20 @@ duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
 
-startList = [
-    "https://en.wikipedia.org/wiki/Duck",
-    "https://en.wikipedia.org/wiki/Camptophallus",
-    "https://en.wikipedia.org/wiki/Quantum_computing",
-    "https://en.wikipedia.org/wiki/Train",
-    "https://en.wikipedia.org/wiki/Ascot,_Berkshire",
-    "https://en.wikipedia.org/wiki/Rhine_campaign_of_1796",
-    "https://en.wikipedia.org/wiki/Ivan_the_Terrible_(polar_bear)",
-    "https://en.wikipedia.org/wiki/Taipei",
-    "https://en.wikipedia.org/wiki/Sausage",
-    "https://en.wikipedia.org/wiki/Special:Random"
-]
-#for i in range(50):
-#    startList.append("https://en.wikipedia.org/wiki/Special:Random")
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex = 20, 0, 0
-node = startList[SLIndex]
+pageDepth, pagesVisited, SLIndex, maxSeeds = 20, 0, 0, 50
+node = duck.getRandomPage()
 graph.addNode(node, set())
 
-
-while SLIndex < len(startList):
+while SLIndex < maxSeeds:
     if pagesVisited >= pageDepth:
         SLIndex += 1
-        if SLIndex < len(startList):
-            node = startList[SLIndex]
+        if SLIndex < maxSeeds:
+            node = duck.getRandomPage()
             graph.addNode(node, set())
             pagesVisited = 0
-            print("-----------------", len(startList), SLIndex)
+            print("-----------------", SLIndex)
 
     if graph.graphDict[node] == set():  # If the node hasn't been visited
         links = duck.collectLinks(node, breadth=1)

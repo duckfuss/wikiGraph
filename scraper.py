@@ -15,6 +15,10 @@ class Scraper():
             try:    return self.browser.find_element(By.XPATH, path)
             except NoSuchElementException:  pass
 
+    def getRandomPage(self):
+        self.browser.get("https://en.wikipedia.org/wiki/Special:Random")
+        return self.browser.current_url
+
     def collectLinks(self, site, breadth=2):
         self.browser.get(site)
         linkList = []
@@ -29,7 +33,7 @@ class Scraper():
             linkNo += 1
         return linkList
 
-    def scrape(self, startSite, depth=3): # unused - main.py controls scraping
+    def scrape(self, startSite, depth=3): # unused - main.py controls scraping now
         self.browser.get(startSite)
         for i in range(depth):
             node = self.findNode()
