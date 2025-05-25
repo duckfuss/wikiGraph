@@ -14,7 +14,7 @@ pagesVisited, SLIndex = 0, 0
 # change at will:
 maxSeeds = 15
 pageDepth = 20
-pageBreadth = 3
+pageBreadth = 2
 
 # initialise start node
 node = duck.getRandomPage()
