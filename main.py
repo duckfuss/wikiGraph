@@ -40,7 +40,7 @@ while SLIndex < maxSeeds:
         pagesVisited += pageDepth  # Ensure program moves on to the next start word
 
 duck.browser.quit()
-
+print("DONE - generated", len(graph.graphDict), "nodes")
 # Generate graph visualization
 for node, links in graph.graphDict.items():
     sim.introduceNode(node, links)
