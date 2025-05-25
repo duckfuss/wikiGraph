@@ -140,7 +140,7 @@ class Sim():
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
 
             # Adjust font size based on zoom level
-            font_size = max(10, int(18 * self.zoom))  # Ensure font size doesn't go below 10
+            font_size = int(18 * self.zoom)
             self.font.size = font_size
 
             # Render label using freetype

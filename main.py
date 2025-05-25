@@ -12,8 +12,9 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 # change at will:
-maxSeeds = 50
+maxSeeds = 10
 pageDepth = 20
+pageBreadth = 2
 
 # initialise start node
 node = duck.getRandomPage()
@@ -29,7 +30,7 @@ while SLIndex < maxSeeds:
             print("-----------------", SLIndex)
     if graph.graphDict[node] == set():  # If node's new
         print(pagesVisited, node)
-        links = duck.collectLinks(node, breadth=1)
+        links = duck.collectLinks(node, breadth=pageBreadth)
         graph.addNode(node, links) #type: ignore
         if links:   node = links[0]
         else:       pagesVisited += pageDepth
