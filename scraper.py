@@ -7,7 +7,7 @@ class Scraper():
     def __init__(self) -> None:
         options = webdriver.FirefoxOptions()
         self.browser = webdriver.Firefox(options=options)
-        self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Latin language", "Greek language"]
+        self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Latin language", "Greek language", "Ancient Greek language", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key", "French language"]
 
     def findNode(self, n=1):
         for i in range(1,10):
@@ -15,11 +15,11 @@ class Scraper():
             try:    return self.browser.find_element(By.XPATH, path)
             except NoSuchElementException:  pass
 
-    def collectLinks(self, site, depth=2):
+    def collectLinks(self, site, breadth=2):
         self.browser.get(site)
         linkList = []
         linkNo = 1
-        while len(linkList) < depth:
+        while len(linkList) < breadth:
             html = self.findNode(linkNo)
             if html is None: 
                 return linkList

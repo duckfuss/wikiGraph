@@ -16,11 +16,15 @@ startList = [
     "https://en.wikipedia.org/wiki/Camptophallus",
     "https://en.wikipedia.org/wiki/Quantum_computing",
     "https://en.wikipedia.org/wiki/Train",
-    "https://en.wikipedia.org/wiki/Ascot,_Berkshire"
+    "https://en.wikipedia.org/wiki/Ascot,_Berkshire",
+    "https://en.wikipedia.org/wiki/Rhine_campaign_of_1796",
+    "https://en.wikipedia.org/wiki/Ivan_the_Terrible_(polar_bear)",
+    "https://en.wikipedia.org/wiki/Taipei",
+    "https://en.wikipedia.org/wiki/Sausage"
 ]
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex = 10, 0, 0
+pageDepth, pagesVisited, SLIndex = 15, 0, 0
 node = startList[SLIndex]
 
 while running:
@@ -34,9 +38,9 @@ while running:
         if SLIndex < len(startList) and (time.time() - start) > 0.1:
             start = time.time()
             pagesVisited += 1
-            links = duck.collectLinks(node)
+            links = duck.collectLinks(node, breadth=1)
             addNode(node, links)
             node = links[0] # type: ignore
-            print(node)
+            print(pagesVisited, node)
     running = sim.updateGraphics()
 duck.browser.quit()
