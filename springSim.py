@@ -30,7 +30,7 @@ class Sim():
     def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
-            body.position = (random.randrange(400,700), random.randrange(100,600))
+            body.position = (random.randrange(300, 800), random.randrange(50, 650))  # Adjusted range for more spacing
             self.bodyDict[name] = body
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
@@ -38,10 +38,10 @@ class Sim():
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
-            # If  body is linked to another, place near the linked body
+            # If body is linked to another, place near the linked body with a larger offset
             if linked_to and linked_to in self.bodyDict:
                 linked_body = self.bodyDict[linked_to]
-                offset = pymunk.Vec2d(random.uniform(-50, 50), random.uniform(-50, 50))
+                offset = pymunk.Vec2d(random.uniform(-500, 500), random.uniform(-500, 500))  # Increased offset range
                 body.position = linked_body.position + offset
 
     def introduceNode(self, node, links):
@@ -166,6 +166,7 @@ class Sim():
                 [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right],
             )
 
+        
         pygame.display.update()
         self.space.step(1 / 120)
         self.clock.tick(60)
