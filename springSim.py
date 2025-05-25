@@ -31,25 +31,21 @@ class Sim():
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
             circle.friction = 0.5
-            circle.colour = pygame.Color("red")  # British spelling
+            circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
     def introduceNode(self, node, links):
         self.createBodyIfNew(node)
         for link in links:
             self.createBodyIfNew(link)
-            # Only add a spring if it doesn't already exist
-            if not any((joint.a == self.bodyDict[node] and joint.b == self.bodyDict[link]) or
-                       (joint.a == self.bodyDict[link] and joint.b == self.bodyDict[node])
-                       for joint in self.jointList):
-                joint = pymunk.constraints.DampedSpring(
-                    self.bodyDict[node],
-                    self.bodyDict[link],
-                    (0,0),(0,0),
-                    200, 4, 0.3
-                )
-                self.jointList.append(joint)
-                self.space.add(joint)
+            joint = pymunk.constraints.DampedSpring(
+                self.bodyDict[node],
+                self.bodyDict[link],
+                (0,0),(0,0),
+                200, 4, 0.3
+            )
+            self.jointList.append(joint)
+            self.space.add(joint)
 
     def apply_repulsion(self):
         k = 100000  # repulsion constant
@@ -115,13 +111,11 @@ class Sim():
                     delta = (self.pan_start - mouse_pos) / self.zoom
                     self.offset = self.pan_offset_start + delta
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                print("enter")
                 for name, body in self.bodyDict.items():
                     body.velocity = (0,0)
-
+        return True
     def updateGraphics(self):
-        self.handleEvents()
-        self.screen.fill("GRAY")
+        self.screen.fill("slategray3")
         #self.space.debug_draw(self.draw_options)
 
         # Repulsion for better layout
@@ -132,7 +126,7 @@ class Sim():
             if name == self.selected:
                 colour = "YELLOW"
             else:
-                colour = "RED"
+                colour = "slateblue3"
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
             # Draw label
             font = pygame.font.SysFont(None, 18)
@@ -142,8 +136,20 @@ class Sim():
         for joint in self.jointList:
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom)+(mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom)+(mpX, mpY)
-            pygame.draw.line(self.screen, "RED", coords1, coords2, 2)
+            pygame.draw.line(self.screen, "GRAY", coords1, coords2, 2)
+
+            # Draw arrowhead
+            direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
+            direction.scale_to_length(10)  # Length of the arrowhead
+            left = pygame.Vector2(-direction.y, direction.x) * 0.5
+            right = pygame.Vector2(direction.y, -direction.x) * 0.5
+            arrow_tip = pygame.Vector2(coords2)
+            pygame.draw.polygon(
+                self.screen, "slateblue4",
+                [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right]
+            )
 
         pygame.display.update()
         self.space.step(1/120)
         self.clock.tick(60)
+        return self.handleEvents()

@@ -14,12 +14,14 @@ sim = springSim.Sim()
 startList = [
     "https://en.wikipedia.org/wiki/Duck",
     "https://en.wikipedia.org/wiki/Camptophallus",
-    #"https://en.wikipedia.org/wiki/Quantum_computing",
+    "https://en.wikipedia.org/wiki/Quantum_computing",
+    "https://en.wikipedia.org/wiki/Train",
+    "https://en.wikipedia.org/wiki/Ascot,_Berkshire"
 ]
 running = True
 start = time.time()
-pageDepth, pagesVisited, SLIndex = 10, 0, 0  # Set pagesVisited = 0
-node = startList[SLIndex]  # Initialize node
+pageDepth, pagesVisited, SLIndex = 10, 0, 0
+node = startList[SLIndex]
 
 while running:
     if SLIndex < len(startList):
