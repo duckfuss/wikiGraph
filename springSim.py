@@ -100,8 +100,10 @@ class Sim():
                         screen_pos = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
                         self.drag_offset = pygame.Vector2(screen_pos) - pygame.Vector2(event.pos)
                         self.selected = name
+                        self.highlighted_nodes = self.get_connected_nodes(name)
                     else:
                         self.selected = None
+                        self.highlighted_nodes = set()
                 elif event.button == 3:  # Right click for panning
                     self.pan_start = pygame.Vector2(event.pos)
                     self.pan_offset_start = self.offset
@@ -135,6 +137,8 @@ class Sim():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             if name == self.selected:
                 colour = "YELLOW"
+            elif name in getattr(self, "highlighted_nodes", set()):
+                colour = "LIGHTBLUE"
             else:
                 colour = "slateblue3"
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
@@ -171,3 +175,15 @@ class Sim():
         self.space.step(1 / 120)
         self.clock.tick(60)
         return self.handleEvents()
+    def get_connected_nodes(self, node, visited=None):
+        if visited is None:
+            visited = set()
+        if node in visited:
+            return visited
+        visited.add(node)
+        for joint in self.jointList:
+            if joint.a == self.bodyDict[node]:  # Only follow links where the node is the source
+                connected_node = next((name for name, body in self.bodyDict.items() if body == joint.b), None)
+                if connected_node:
+                    self.get_connected_nodes(connected_node, visited)
+        return visited

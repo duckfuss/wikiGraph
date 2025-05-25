@@ -12,9 +12,9 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 # change at will:
-maxSeeds = 15
+maxSeeds = 5
 pageDepth = 20
-pageBreadth = 2
+pageBreadth = 3
 
 # initialise start node
 node = duck.getRandomPage()
