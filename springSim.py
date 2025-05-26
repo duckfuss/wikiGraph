@@ -27,6 +27,8 @@ class Sim():
         # Initialize freetype font
         self.font = pygame.freetype.SysFont(None, 18)
 
+        self.collisions_enabled = True  # Flag to track collision state
+
     def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
@@ -35,6 +37,7 @@ class Sim():
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
             circle.friction = 0.5
+            circle.filter = pymunk.ShapeFilter(group=0)  # Default to collisions enabled
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
@@ -122,10 +125,24 @@ class Sim():
                     mouse_pos = pygame.Vector2(event.pos)
                     delta = (self.pan_start - mouse_pos) / self.zoom
                     self.offset = self.pan_offset_start + delta
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                for name, body in self.bodyDict.items():
-                    body.velocity = (0,0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    for name, body in self.bodyDict.items():
+                        body.velocity = (0, 0)
+                elif event.key == pygame.K_m:
+                    # Toggle collisions
+                    self.collisions_enabled = not self.collisions_enabled
+                    self.update_collision_filters()
+
         return True
+    def update_collision_filters(self):
+        for body in self.bodyDict.values():
+            for shape in body.shapes:  # Iterate over all shapes attached to the body
+                if self.collisions_enabled:
+                    shape.filter = pymunk.ShapeFilter(group=0)  # Enable collisions
+                else:
+                    shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
+
     def updateGraphics(self):
         self.screen.fill("slategray3")
         # self.space.debug_draw(self.draw_options)
@@ -172,8 +189,8 @@ class Sim():
 
         
         pygame.display.update()
-        self.space.step(1 / 120)
-        self.clock.tick(60)
+        self.space.step(1 / 60)
+        self.clock.tick(240)
         return self.handleEvents()
     def get_connected_nodes(self, node, visited=None):
         if visited is None:

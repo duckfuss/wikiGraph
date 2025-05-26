@@ -14,7 +14,7 @@ pagesVisited, SLIndex = 0, 0
 # change at will:
 maxSeeds = 5
 pageDepth = 20
-pageBreadth = 3
+pageBreadth = 2
 
 # initialise start node
 node = duck.getRandomPage()
@@ -37,11 +37,24 @@ def exploreLinksAndGraph(startSite, breadth, depth):
             print(f"Skipping already visited page: {node}")
             pagesVisited += pageDepth  # Ensure program moves on to the next start word
 
-
+# traverse wikipedia
 for seed in range(maxSeeds):
+    print("TRAVERSING---------------", seed)
     exploreLinksAndGraph(duck.getRandomPage(), pageBreadth, pageDepth)
 
+print("PROCESSING DEAD END NODES")
+# complete dead ends
+dead_end_nodes = [node for node, links in graph.graphDict.items() if links == set()]
+for node in dead_end_nodes:
+    print("DEAD_END---------------", node)
+    exploreLinksAndGraph(node, 1, 10)
 
+print("PROCESSING DEAD END NODES again")
+# complete dead ends
+dead_end_nodes = [node for node, links in graph.graphDict.items() if links == set()]
+for node in dead_end_nodes:
+    print("DEAD_END2---------------", node)
+    exploreLinksAndGraph(node, 1, 10)
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")
