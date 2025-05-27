@@ -22,10 +22,8 @@ class Graph():
         while queue:
             current = queue.pop(0)  # Get the next node in the queue
             if current not in visited:
-                print(f"Visiting node: {current}")  # Debug print
                 visited.append(current)  # Add to visited list
                 for link in self.graphDict.get(current, set()):
-                    print(f"  {current} -> {link}")  # Debug print
                     if link not in visited and link not in queue:
                         queue.append(link)  # Add unvisited children to the queue
         return visited

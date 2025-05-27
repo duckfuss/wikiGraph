@@ -8,6 +8,7 @@ class Scraper():
         options = webdriver.FirefoxOptions()
         options.set_preference('permissions.default.image', 2) # disable images
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
+        options.add_argument("-headless") 
         self.browser = webdriver.Firefox(options=options)
         self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key"]
 

@@ -12,7 +12,7 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 # change at will:
-maxSeeds = 2
+maxSeeds = 3
 pageDepth = 10
 pageBreadth = 2
 

@@ -128,7 +128,6 @@ class Sim():
                     for name, body in self.bodyDict.items():
                         body.velocity = (0, 0)
                 elif event.key == pygame.K_m:
-                    # Toggle collisions
                     self.collisions_enabled = not self.collisions_enabled
                     self.update_collision_filters()
         return True
@@ -141,22 +140,16 @@ class Sim():
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
-    def updateGraphics(self, highlightSet=[]):  # Default to an empty list
+    def updateGraphics(self, highlightSet=[]):
         self.screen.fill("slategray3")
-
-        # Repulsion for better layout
         self.apply_repulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
 
-        # Calculate depth levels for nodes in highlightSet
         depth_map = {name: depth for depth, name in enumerate(highlightSet)}
-
-        # Normalize depth for color gradient
-        max_depth = max(depth_map.values(), default=1)  # Avoid division by zero
+        max_depth = max(depth_map.values(), default=1)
 
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-
             if name == self.selected:
                 colour = "YELLOW"
             elif name in depth_map:  # Use depth_map to check if the node is in highlightSet
@@ -166,7 +159,6 @@ class Sim():
                 colour = (255, intensity, intensity)  # RGB tuple for red gradient
             else:
                 colour = "slateblue3"
-
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
 
             # Adjust font size based on zoom level
