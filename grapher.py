@@ -14,3 +14,16 @@ class Graph():
         for link in links:
             if link not in self.graphDict.keys():
                 self.graphDict[link] = set()
+    
+    def getChildren(self, node):
+        visited = []  # Use a list to maintain order of traversal
+        queue = [node]  # Use a queue to process nodes breadth-first
+
+        while queue:
+            current = queue.pop(0)  # Get the next node in the queue
+            if current not in visited:
+                visited.append(current)  # Add to visited list
+                for link in self.graphDict.get(current, set()):
+                    if link not in visited and link not in queue:
+                        queue.append(link)  # Add unvisited children to the queue
+        return visited
