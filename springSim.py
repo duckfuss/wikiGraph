@@ -139,27 +139,35 @@ class Sim():
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
+    def getColour(self, name, depth_map, max_depth, highlightList, defaultCol = "slateblue3"):
+        if name == self.selected:
+            return "YELLOW"
+        elif name in highlightList:
+            depth = depth_map[name]
+            intensity = int((depth / max_depth) * 255)  # Lower depth = lower intensity
+            return (255, intensity, intensity)  # Gradient red color
+        else:
+            return defaultCol
+
     def updateGraphics(self, highlightList=[]):
         self.screen.fill("slategray3")
         self.apply_repulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
 
+        # Create a depth map for the highlight list
         depth_map = {name: depth for depth, name in enumerate(highlightList)}
         max_depth = max(depth_map.values(), default=1)
 
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-            if name == self.selected:
-                colour = "YELLOW"
-            elif name in highlightList:
-                depth = depth_map[name]
-                intensity = int((depth / max_depth) * 255)  # Lower depth = lower intensity
-                colour = (255, intensity, intensity)
-            else:
-                colour = "slateblue3"
+
+            # Get the node color using the helper function
+            colour = self.getColour(name, depth_map, max_depth, highlightList)
+
+            # Draw the node
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
 
-            # Adjust font size based on zoom level
+            # Render the label
             font_size = int(18 * self.zoom)
             self.font.size = font_size
             text_surface, rect = self.font.render(
@@ -167,12 +175,19 @@ class Sim():
             )
             self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
 
+        # Draw connections (lines and arrowheads)
         for joint in self.jointList:
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-            pygame.draw.line(self.screen, "GRAY", coords1, coords2, 2)
 
-            # Draw arrowhead
+            # Get the line color using the helper function
+            source_name = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
+            line_colour = self.getColour(source_name, depth_map, max_depth, highlightList, defaultCol="slategray2")
+
+            # Draw the line
+            pygame.draw.line(self.screen, line_colour, coords1, coords2, 2)
+
+            # Draw the arrowhead
             direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
             direction.scale_to_length(10)  # Length of the arrowhead
             left = pygame.Vector2(-direction.y, direction.x) * 0.5
@@ -180,7 +195,7 @@ class Sim():
             arrow_tip = pygame.Vector2(coords2)
             pygame.draw.polygon(
                 self.screen,
-                "slateblue4",
+                line_colour,
                 [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right],
             )
 

@@ -12,9 +12,10 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 # change at will:
-maxSeeds = 1
+maxSeeds = 2
 pageDepth = 10
 pageBreadth = 2
+killOrphans = True
 
 def exploreLinksAndGraph(startSite, breadth, depth):
     pagesVisited = 0
@@ -39,13 +40,14 @@ for seed in range(maxSeeds):
     print("TRAVERSING---------------", seed)
     exploreLinksAndGraph(duck.getRandomPage(), pageBreadth, pageDepth)
 
-for i in range(3):
-    print("PROCESSING DEAD END NODES", i)
-    # complete dead ends
-    dead_end_nodes = [node for node, links in graph.graphDict.items() if links == set()]
-    for node in dead_end_nodes:
-        print(i, "DEAD_END---------------", node)
-        exploreLinksAndGraph(node, 1, 10)
+if killOrphans:
+    for i in range(3):
+        print("PROCESSING DEAD END NODES", i)
+        # complete dead ends
+        dead_end_nodes = [node for node, links in graph.graphDict.items() if links == set()]
+        for node in dead_end_nodes:
+            print(i, "DEAD_END---------------", node)
+            exploreLinksAndGraph(node, 1, 10)
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")
