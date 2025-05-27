@@ -141,21 +141,32 @@ class Sim():
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
-    def updateGraphics(self, highlightSet=set()):
+    def updateGraphics(self, highlightSet=[]):  # Default to an empty list
         self.screen.fill("slategray3")
-        # self.space.debug_draw(self.draw_options)
 
         # Repulsion for better layout
         self.apply_repulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
+
+        # Calculate depth levels for nodes in highlightSet
+        depth_map = {name: depth for depth, name in enumerate(highlightSet)}
+
+        # Normalize depth for color gradient
+        max_depth = max(depth_map.values(), default=1)  # Avoid division by zero
+
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+
             if name == self.selected:
                 colour = "YELLOW"
-            elif name in highlightSet:
-                colour = "LIGHTBLUE"
+            elif name in depth_map:  # Use depth_map to check if the node is in highlightSet
+                # Calculate inverted gradient color based on depth
+                depth = depth_map[name]
+                intensity = int((depth / max_depth) * 255)  # Lower depth = lower intensity
+                colour = (255, intensity, intensity)  # RGB tuple for red gradient
             else:
                 colour = "slateblue3"
+
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
 
             # Adjust font size based on zoom level
@@ -185,21 +196,6 @@ class Sim():
                 [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right],
             )
 
-        
         pygame.display.update()
         self.space.step(1 / 60)
         self.clock.tick(240)
-
-
-    def get_connected_nodes(self, node, visited=None):
-        if visited is None:
-            visited = set()
-        if node in visited:
-            return visited
-        visited.add(node)
-        for joint in self.jointList:
-            if joint.a == self.bodyDict[node]:  # Only follow links where the node is the source
-                connected_node = next((name for name, body in self.bodyDict.items() if body == joint.b), None)
-                if connected_node:
-                    self.get_connected_nodes(connected_node, visited)
-        return visited
