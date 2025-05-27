@@ -10,7 +10,7 @@ this is an educational project only
 
 # Controls
 | Control        | Effect           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | maxSeed       | changes no. starting links               |
 | pageDepth     | no. pages explored per seed              | 
 | pageBreadth   | no. links explored per visited page      |
