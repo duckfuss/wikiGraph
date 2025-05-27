@@ -11,11 +11,14 @@ sim = springSim.Sim()
 running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
+
 # change at will:
+#------------------------------------#
 maxSeeds = 2
 pageDepth = 10
 pageBreadth = 2
 killOrphans = True
+#------------------------------------#
 
 def exploreLinksAndGraph(startSite, breadth, depth):
     pagesVisited = 0
