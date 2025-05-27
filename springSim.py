@@ -103,10 +103,8 @@ class Sim():
                         screen_pos = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
                         self.drag_offset = pygame.Vector2(screen_pos) - pygame.Vector2(event.pos)
                         self.selected = name
-                        self.highlighted_nodes = self.get_connected_nodes(name)
                     else:
                         self.selected = None
-                        self.highlighted_nodes = set()
                 elif event.button == 3:  # Right click for panning
                     self.pan_start = pygame.Vector2(event.pos)
                     self.pan_offset_start = self.offset
@@ -133,8 +131,8 @@ class Sim():
                     # Toggle collisions
                     self.collisions_enabled = not self.collisions_enabled
                     self.update_collision_filters()
-
         return True
+
     def update_collision_filters(self):
         for body in self.bodyDict.values():
             for shape in body.shapes:  # Iterate over all shapes attached to the body
@@ -143,7 +141,7 @@ class Sim():
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
-    def updateGraphics(self):
+    def updateGraphics(self, highlightSet=set()):
         self.screen.fill("slategray3")
         # self.space.debug_draw(self.draw_options)
 
@@ -154,7 +152,7 @@ class Sim():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             if name == self.selected:
                 colour = "YELLOW"
-            elif name in getattr(self, "highlighted_nodes", set()):
+            elif name in highlightSet:
                 colour = "LIGHTBLUE"
             else:
                 colour = "slateblue3"
@@ -191,7 +189,8 @@ class Sim():
         pygame.display.update()
         self.space.step(1 / 60)
         self.clock.tick(240)
-        return self.handleEvents()
+
+
     def get_connected_nodes(self, node, visited=None):
         if visited is None:
             visited = set()

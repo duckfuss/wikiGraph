@@ -12,7 +12,7 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 # change at will:
-maxSeeds = 5
+maxSeeds = 1
 pageDepth = 20
 pageBreadth = 2
 
@@ -64,4 +64,9 @@ for node, links in graph.graphDict.items():
 
 # Keep the graphics running in loop
 while running:
-    running = sim.updateGraphics()
+    running = sim.handleEvents()
+    if sim.selected is not None:
+        highlight = graph.getChildren(sim.selected)
+    else:
+        highlight = set()
+    sim.updateGraphics(highlight)
