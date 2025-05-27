@@ -39,7 +39,7 @@ class Sim():
             circle.filter = pymunk.ShapeFilter(group=0)  # Default to collisions enabled
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
-
+            self.simulation = True
             # If body is linked to another, place near the linked body
             if linked_to and linked_to in self.bodyDict:
                 linked_body = self.bodyDict[linked_to]
@@ -123,12 +123,17 @@ class Sim():
                     delta = (self.pan_start - mouse_pos) / self.zoom
                     self.offset = self.pan_offset_start + delta
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN: # kill momentum of all bodies
                     for name, body in self.bodyDict.items():
                         body.velocity = (0, 0)
-                elif event.key == pygame.K_m:
+                elif event.key == pygame.K_m: # stop collisions
                     self.collisions_enabled = not self.collisions_enabled
                     self.update_collision_filters()
+                elif event.key == pygame.K_n: # freeze simulation
+                    if self.simulation:
+                        self.simulation = False
+                    else:
+                        self.simulation = True
         return True
 
     def update_collision_filters(self):
@@ -200,5 +205,6 @@ class Sim():
             )
 
         pygame.display.update()
-        self.space.step(1 / 60)
-        self.clock.tick(240)
+        if self.simulation:
+            self.space.step(1 / 60)
+            self.clock.tick(240)

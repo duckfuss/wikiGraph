@@ -10,7 +10,7 @@ class Scraper():
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
         options.add_argument("-headless") 
         self.browser = webdriver.Firefox(options=options)
-        self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key"]
+        self.ignoreList = ["Old French", "Latin", "Greek", "Ancient Greek", "Simplified Chinese characters", "Chinese characters", "Traditional Chinese characters", "Pinyin", "Help:Pronunciation respelling key", "American English"]
 
     def findNode(self, n=1):
         for i in range(1,10):

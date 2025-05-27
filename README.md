@@ -22,6 +22,8 @@ this is an educational project only
 | Left Drag   | move node                                               |
 | Right Drag  | pan                                                     |
 | m           | toggle collisions between nodes                         |
+| n           | pause spring simulation                                 |
+| ENTER       | cancel momentum of all bodies                           |
 
 ## Clickling a link highlights child links
 
