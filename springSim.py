@@ -24,7 +24,6 @@ class Sim():
         self.bodyDict = {}
         self.jointList = []
 
-        # Initialize freetype font
         self.font = pygame.freetype.SysFont(None, 18)
 
         self.collisions_enabled = True  # Flag to track collision state
@@ -32,7 +31,7 @@ class Sim():
     def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
-            body.position = (random.randrange(300, 800), random.randrange(50, 650))  # Adjusted range for more spacing
+            body.position = (random.randrange(300, 800), random.randrange(50, 650))
             self.bodyDict[name] = body
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
@@ -41,21 +40,21 @@ class Sim():
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
 
-            # If body is linked to another, place near the linked body with a larger offset
+            # If body is linked to another, place near the linked body
             if linked_to and linked_to in self.bodyDict:
                 linked_body = self.bodyDict[linked_to]
-                offset = pymunk.Vec2d(random.uniform(-500, 500), random.uniform(-500, 500))  # Increased offset range
+                offset = pymunk.Vec2d(random.uniform(-500, 500), random.uniform(-500, 500))
                 body.position = linked_body.position + offset
 
     def introduceNode(self, node, links):
         self.createBodyIfNew(node)
         for link in links:
-            self.createBodyIfNew(link, linked_to=node)  # Spawn linked nodes near the main node
+            self.createBodyIfNew(link, linked_to=node)
             joint = pymunk.constraints.DampedSpring(
                 self.bodyDict[node],
                 self.bodyDict[link],
                 (0, 0), (0, 0),
-                200, 4, 0.3
+                100, 4, 0.3
             )
             self.jointList.append(joint)
             self.space.add(joint)
@@ -134,29 +133,28 @@ class Sim():
 
     def update_collision_filters(self):
         for body in self.bodyDict.values():
-            for shape in body.shapes:  # Iterate over all shapes attached to the body
+            for shape in body.shapes:
                 if self.collisions_enabled:
                     shape.filter = pymunk.ShapeFilter(group=0)  # Enable collisions
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
-    def updateGraphics(self, highlightSet=[]):
+    def updateGraphics(self, highlightList=[]):
         self.screen.fill("slategray3")
         self.apply_repulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
 
-        depth_map = {name: depth for depth, name in enumerate(highlightSet)}
+        depth_map = {name: depth for depth, name in enumerate(highlightList)}
         max_depth = max(depth_map.values(), default=1)
 
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             if name == self.selected:
                 colour = "YELLOW"
-            elif name in depth_map:  # Use depth_map to check if the node is in highlightSet
-                # Calculate inverted gradient color based on depth
+            elif name in highlightList:
                 depth = depth_map[name]
                 intensity = int((depth / max_depth) * 255)  # Lower depth = lower intensity
-                colour = (255, intensity, intensity)  # RGB tuple for red gradient
+                colour = (255, intensity, intensity)
             else:
                 colour = "slateblue3"
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
@@ -164,8 +162,6 @@ class Sim():
             # Adjust font size based on zoom level
             font_size = int(18 * self.zoom)
             self.font.size = font_size
-
-            # Render label using freetype
             text_surface, rect = self.font.render(
                 name.replace("https://en.wikipedia.org/wiki/", ""), "BLACK"
             )
