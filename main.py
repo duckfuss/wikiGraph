@@ -14,7 +14,7 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 1
+maxSeeds = 30
 pageDepth = 10
 pageBreadth = 1
 killOrphans = True
