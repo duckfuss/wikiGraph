@@ -17,7 +17,7 @@ this is an educational project only
 | Left click    | highlight selected node and it's children|
 | Left Drag     | move node                                |
 | Right Drag    | pan                                      |
-| K             | toggle collisions between nodes          |
+| m             | toggle collisions between nodes          |
 
 
 
