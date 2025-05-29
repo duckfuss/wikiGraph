@@ -20,6 +20,7 @@ class Scraper():
 
     def getRandomPage(self):
         self.browser.get("https://en.wikipedia.org/wiki/Special:Random")
+        # https://fr.wikipedia.org/wiki/Spécial:Page_au_hasard for french wikipedia
         return self.browser.current_url
 
 
