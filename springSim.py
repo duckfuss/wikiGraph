@@ -50,14 +50,15 @@ class Sim():
         self.createBodyIfNew(node)
         for link in links:
             self.createBodyIfNew(link, linked_to=node)
-            joint = pymunk.constraints.DampedSpring(
-                self.bodyDict[node],
-                self.bodyDict[link],
-                (0, 0), (0, 0),
-                100, 4, 0.3
-            )
-            self.jointList.append(joint)
-            self.space.add(joint)
+            if node != link:  # Avoid self-loops
+                joint = pymunk.constraints.DampedSpring(
+                    self.bodyDict[node],
+                    self.bodyDict[link],
+                    (0, 0), (0, 0),
+                    100, 4, 0.3
+                )
+                self.jointList.append(joint)
+                self.space.add(joint)
 
     def apply_repulsion(self):
         k = 100000  # repulsion constant
@@ -175,9 +176,7 @@ class Sim():
             # Render the label
             font_size = int(18 * self.zoom)
             self.font.size = font_size
-            text_surface, rect = self.font.render(
-                name.replace("https://en.wikipedia.org/wiki/", ""), "BLACK"
-            )
+            text_surface, rect = self.font.render(name[30:], "BLACK")
             self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
 
         # Draw connections (lines and arrowheads)

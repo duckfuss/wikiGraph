@@ -14,10 +14,12 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 30
+maxSeeds = 10
 pageDepth = 10
 pageBreadth = 1
-killOrphans = True
+noOrphans = True
+lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
+# Note: Non-Latin characters have weird urls so don't display nicely
 #------------------------------------#
 
 def exploreLinksAndGraph(startSite, breadth, depth):
@@ -33,6 +35,7 @@ def exploreLinksAndGraph(startSite, breadth, depth):
              # abort if cannot find a follow-on link:
             if links:   node = links[0] 
             else:       return
+            print("links:", links)
             pagesVisited += 1
         else:  # Skip already visited nodes
             print(f"Skipping already visited page: {node}")
@@ -41,9 +44,9 @@ def exploreLinksAndGraph(startSite, breadth, depth):
 # traverse wikipedia
 for seed in range(maxSeeds):
     print("TRAVERSING---------------", seed)
-    exploreLinksAndGraph(duck.getRandomPage(), pageBreadth, pageDepth)
+    exploreLinksAndGraph(duck.getRandomPage(language=lanugage), pageBreadth, pageDepth)
 
-if killOrphans:
+if noOrphans:
     for i in range(3):
         print("PROCESSING DEAD END NODES", i)
         # complete dead ends
@@ -54,7 +57,7 @@ if killOrphans:
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")
-# Generate graph visualization
+# Generate graph visualizationx
 for node, links in graph.graphDict.items():
     sim.introduceNode(node, links)
 
