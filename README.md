@@ -4,8 +4,13 @@ a bot to scrape and badly graph wikipedia
 
 this is an educational project only
 
-# What does it need
+# Features
+- multi language support
+- graph simulation using spring physics
+- search arbritrary breadth and depth of pages
+- random starting pages
 
+# What does it need
 - selenium  (scrape wikipedia)
 - pygame    (display network)
 - pymunk    (spring physics)
