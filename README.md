@@ -9,23 +9,37 @@ this is an educational project only
 - selenium  (scrape wikipedia)
 - pygame    (display network)
 - pymunk    (spring physics)
+- firefox
 
 # Controls
 
-| Control     | Effect                                                  |
-| ----------- | ------------------------------------------------------- |
-| maxSeed     | changes no. starting links                              |
-| pageDepth   | no. pages explored per seed                             |
-| pageBreadth | no. links explored per visited page                     |
-| killOrphans | (T/F) ensures there are no nodes without outgoing links |
-| Left click  | highlight selected node and it's children               |
-| Left Drag   | move node                                               |
-| Right Drag  | pan                                                     |
-| m           | toggle collisions between nodes                         |
-| n           | pause spring simulation                                 |
-| ENTER       | cancel momentum of all bodies                           |
+## In main.py
+
+| Control     | Effect                                                    |
+| ----------- | --------------------------------------------------------- |
+| maxSeed     | changes no. starting links                                |
+| pageDepth   | no. pages explored per seed                               |
+| pageBreadth | no. links explored per visited page                       |
+| noOrphans   | (T/F) ensures there are no nodes without outgoing links   |
+| Language    | English, French, Chinese, Japanese, Spanish, Latin, Scots |
+
+NB: non-latin script languages don't display nice!
+
+## In app window
+
+| Control    | Effect                                         |
+| ---------- | ---------------------------------------------- |
+| Left Click | Highlight selected node and show it's children |
+| Left Drag  | Move node                                      |
+| Right Drag | Pan                                            |
+| m          | Toggle collisions between nodes                |
+| n          | Freeze spring simulations                      |
+| ENTER      | cancel momentum of all bodies                  |
+
+# Images:
 
 ## Clickling a link highlights child links
+
 <img width="400" alt="Screenshot 2025-05-27 at 12 39 13 pm" src="https://github.com/user-attachments/assets/407d2626-c16c-416c-b25d-77a6b953ecf9" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 34 32 am" src="https://github.com/user-attachments/assets/5ddc0b4a-b075-4bc4-9992-452f5711fe14" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 35 31 am" src="https://github.com/user-attachments/assets/16e9e190-8328-4848-be76-e8657c3de354" />
