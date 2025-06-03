@@ -59,8 +59,10 @@ NB: toggling text rendering and collisions OFF can help performance for large gr
 <img width="300" alt="Screenshot 2025-05-27 at 10 34 32 am" src="https://github.com/user-attachments/assets/5ddc0b4a-b075-4bc4-9992-452f5711fe14" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 35 31 am" src="https://github.com/user-attachments/assets/16e9e190-8328-4848-be76-e8657c3de354" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 39 36 am" src="https://github.com/user-attachments/assets/8bee62c5-9c21-4e50-8a1d-148a67083a9f" />
+
 ### Highlighting mode 1 shows hotspots:
-![Screenshot 2025-06-03 at 6 10 47 pm](https://github.com/user-attachments/assets/44233d8a-ee1d-420f-8331-c6890946ac45)
+<img width="300" alt="Screenshot 2025-05-27 at 10 39 36 am" src="https://github.com/user-attachments/assets/44233d8a-ee1d-420f-8331-c6890946ac45" />
+
 
 
 ## Larger example:
