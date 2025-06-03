@@ -145,7 +145,7 @@ class Sim():
                     delta = (self.pan_start - mouse_pos) / self.zoom
                     self.offset = self.pan_offset_start + delta
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN: # kill momentum of all bodies
+                if event.key == pygame.K_v: # kill momentum of all bodies
                     for name, body in self.bodyDict.items():
                         body.velocity = (0, 0)
                 elif event.key == pygame.K_m: # stop collisions

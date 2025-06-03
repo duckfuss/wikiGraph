@@ -5,12 +5,14 @@ a bot to scrape and badly graph wikipedia
 this is an educational project only
 
 # Features
+
 - multi language support
 - graph simulation using spring physics
 - search arbritrary breadth and depth of pages
 - random starting pages
 
 # What does it need
+
 - selenium  (scrape wikipedia)
 - pygame    (display network)
 - pymunk    (spring physics)
@@ -37,9 +39,10 @@ NB: non-latin script languages don't display nice!
 | Left Click | Highlight selected node and show it's children |
 | Left Drag  | Move node                                      |
 | Right Drag | Pan                                            |
+| v          | Cancel momentum of all bodies                  |
+| b          | toggle text rendering                          |
 | m          | Toggle collisions between nodes                |
 | n          | Freeze spring simulations                      |
-| ENTER      | cancel momentum of all bodies                  |
 
 # Images:
 
