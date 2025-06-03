@@ -34,27 +34,31 @@ NB: non-latin script languages don't display nice!
 
 ## In app window
 
-| Control    | Effect                                                    |
-| ---------- | --------------------------------------------------------- |
-| Left Click | Highlight selected node and show it's children            |
-| Left Drag  | Move node                                                 |
-| Right Drag | Pan                                                       |
-| v          | Cancel momentum of all bodies                             |
-| b          | toggle text rendering (will still show on selected nodes) |
-| m          | Toggle collisions between nodes                           |
-| n          | Freeze spring simulations                                 |
+| Control       | Effect                                                    |
+| ------------- | --------------------------------------------------------- |
+| Left Click    | Highlight selected node and show it's children            |
+| Left Drag     | Move node                                                 |
+| Right Drag    | Pan                                                       |
+| c (Def. 0)   | toggle highlighting modes (see below)                     |
+| v (Def. OFF) | Cancel velocity of all bodies                             |
+| b (Def. OFF) | toggle text rendering (will still show on selected nodes) |
+| m (Def. OFF)  | Toggle collisions between nodes                           |
+| n (Def. OFF) | Freeze spring simulations                                 |
 
 NB: toggling text rendering and collisions OFF can help performance for large graphs 
 
-# Images:
+### Highlighting modes:
 
-## Clickling a link highlights child links
+0. (Default) clicking a node highlight's it's descendants with heatmap based off distance from selected node
+1. highlight all nodes with heatmap based off number of parents (links IN)
+2. Highlight all nodes with heatmap based off number of descendants
+
+# Images:
 
 <img width="400" alt="Screenshot 2025-05-27 at 12 39 13 pm" src="https://github.com/user-attachments/assets/407d2626-c16c-416c-b25d-77a6b953ecf9" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 34 32 am" src="https://github.com/user-attachments/assets/5ddc0b4a-b075-4bc4-9992-452f5711fe14" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 35 31 am" src="https://github.com/user-attachments/assets/16e9e190-8328-4848-be76-e8657c3de354" />
 <img width="300" alt="Screenshot 2025-05-27 at 10 39 36 am" src="https://github.com/user-attachments/assets/8bee62c5-9c21-4e50-8a1d-148a67083a9f" />
-<img width="733" alt="Screenshot 2025-05-27 at 5 54 07 pm" src="https://github.com/user-attachments/assets/9229219d-2257-482e-b2ab-18c85f6075a8" />
 
 ## Larger example:
 

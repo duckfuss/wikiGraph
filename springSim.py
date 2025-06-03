@@ -13,24 +13,29 @@ class Sim():
         self.zoom = 1
         self.offset = pygame.Vector2(0, 0)
         self.dragging = None
-        self.drag_offset = pygame.Vector2(0, 0)
-        self.selected = None
-        self.pan_start = None
-        self.pan_offset_start = pygame.Vector2(0, 0)
+        self.dragOffset = pygame.Vector2(0, 0)
+        self.panStart = None
+        self.panOffsetStart = pygame.Vector2(0, 0)
 
-        self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
+        self.drawOptions = pymunk.pygame_util.DrawOptions(self.screen)
         self.space = pymunk.Space()
         self.space.gravity = 0, 0
         self.bodyDict = {}
         self.jointList = []
 
         self.font = pygame.freetype.SysFont(None, 18)
+        
+        self.selected = None
+        self.renderAllText = False  # Flag to control text rendering
+        self.frameCount = 0
+        self.simulation = True
+        self.collisionsEnabled = False
+        self.highlightMode = 0  # 0=OFF, 1=weightCol, 2=descendantHighlight
 
-        self.collisions_enabled = True  # Flag to track collision state
-        self.renderAllText = True  # Flag to control text rendering
-        self.frame_count = 0
+    def setGraph(self, graph):
+        self.graph = graph
 
-    def createBodyIfNew(self, name, linked_to=None):
+    def createBodyIfNew(self, name, linkedTo=None):
         if name not in self.bodyDict.keys():
             body = pymunk.Body(mass=1, moment=100)
             body.position = (random.randrange(300, 800), random.randrange(50, 650))
@@ -38,20 +43,19 @@ class Sim():
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
             circle.friction = 0.5
-            circle.filter = pymunk.ShapeFilter(group=0)  # Default to collisions enabled
+            circle.filter = pymunk.ShapeFilter(group=1) # Default to collisions disabled
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
-            self.simulation = True
             # If body is linked to another, place near the linked body
-            if linked_to and linked_to in self.bodyDict:
-                linked_body = self.bodyDict[linked_to]
+            if linkedTo and linkedTo in self.bodyDict:
+                linkedBody = self.bodyDict[linkedTo]
                 offset = pymunk.Vec2d(random.uniform(-500, 500), random.uniform(-500, 500))
-                body.position = linked_body.position + offset
+                body.position = linkedBody.position + offset
 
     def introduceNode(self, node, links):
         self.createBodyIfNew(node)
         for link in links:
-            self.createBodyIfNew(link, linked_to=node)
+            self.createBodyIfNew(link, linkedTo=node)
             if node != link:  # Avoid self-loops
                 joint = pymunk.constraints.DampedSpring(
                     self.bodyDict[node],
@@ -62,25 +66,25 @@ class Sim():
                 self.jointList.append(joint)
                 self.space.add(joint)
 
-    def apply_repulsion(self):
-        k = 100000          # repulsion constant    
-        max_force = 5000    # maximum repulsion force
-        cell_size = 150     # adjust for graph density (optimisation)
-        central_k = 20000    # strength of central repulsion
+    def applyRepulsion(self):
+        k = 100000          # repulsion constant      
+        maxForce = 5000     # maximum repulsion force
+        cellSize = 150      # adjust for graph density (optimisation)
+        centralK = 20000    # strength of central repulsion
         grid = {}
 
         # loop 1: assign to grid and compute centre of mass 
-        sum_pos, count = pymunk.Vec2d(0, 0), 0
+        sumPos, count = pymunk.Vec2d(0, 0), 0
         for name, body in self.bodyDict.items():
-            cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
+            cell = (int(body.position.x // cellSize), int(body.position.y // cellSize))
             grid.setdefault(cell, []).append(body)
-            sum_pos += body.position
+            sumPos += body.position
             count += 1
-        centre_of_mass = sum_pos / count
+        centreOfMass = sumPos / count
 
         # loop 2: apply repulsion and central force
         for name, body in self.bodyDict.items():
-            cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
+            cell = (int(body.position.x // cellSize), int(body.position.y // cellSize))
             neighborsList = []
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
@@ -91,29 +95,28 @@ class Sim():
                     continue
                 delta = body.position - neighbour.position
                 dist = max(delta.length, 1)
-                if dist > cell_size * 2:  # don't bother if node is super far away
+                if dist > cellSize * 2:  # don't bother if node is super far away
                     continue
                 direction = delta.normalized() if dist > 0 else pymunk.Vec2d(1, 0)
                 force = k / (dist ** 2)
-                force = min(force, max_force)  # Clamp the force
+                force = min(force, maxForce)  # Clamp the force
                 repulse = direction * force
                 body.apply_force_at_world_point(repulse, body.position)
                 neighbour.apply_force_at_world_point(-repulse, neighbour.position)
 
             # Central repulsion
-            delta_c = body.position - centre_of_mass
-            dist_c = max(delta_c.length, 1)
-            direction_c = delta_c.normalized() if dist_c > 0 else pymunk.Vec2d(1, 0)
-            force_c = central_k / dist_c
-            repulse_c = direction_c * force_c
-            body.apply_force_at_world_point(repulse_c, body.position)
+            deltaC = body.position - centreOfMass
+            distC = max(deltaC.length, 1)
+            directionC = deltaC.normalized() if distC > 0 else pymunk.Vec2d(1, 0)
+            forceC = centralK / distC
+            repulseC = directionC * forceC
+            body.apply_force_at_world_point(repulseC, body.position)
 
-    def get_body_at_pos(self, pos):
-        # pos is screen coordinates
+    def getBodyAtPos(self, pos):
         mpX, mpY = self.xMax/2, self.yMax/2
         for name, body in self.bodyDict.items():
-            screen_pos = ((body.position - self.offset) - (mpX, mpY)) * self.zoom + (mpX, mpY)
-            if (pygame.Vector2(screen_pos) - pygame.Vector2(pos)).length() < 20 * self.zoom:
+            screenPos = ((body.position - self.offset) - (mpX, mpY)) * self.zoom + (mpX, mpY)
+            if (pygame.Vector2(screenPos) - pygame.Vector2(pos)).length() < 20 * self.zoom:
                 return name
         return None
 
@@ -123,125 +126,162 @@ class Sim():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
-            elif event.type == pygame.MOUSEWHEEL:
+            if event.type == pygame.MOUSEWHEEL:
                 if event.y > 0:
                     self.zoom *= 1.1
                 elif event.y < 0:
                     self.zoom /= 1.1
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left click
-                    name = self.get_body_at_pos(event.pos)
+                    name = self.getBodyAtPos(event.pos)
                     if name:
                         self.dragging = name
                         body = self.bodyDict[name]
-                        screen_pos = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-                        self.drag_offset = pygame.Vector2(screen_pos) - pygame.Vector2(event.pos)
+                        screenPos = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+                        self.dragOffset = pygame.Vector2(screenPos) - pygame.Vector2(event.pos)
                         self.selected = name
                     else:
                         self.selected = None
                 elif event.button == 3:  # Right click for panning
-                    self.pan_start = pygame.Vector2(event.pos)
-                    self.pan_offset_start = self.offset
-            elif event.type == pygame.MOUSEBUTTONUP:
+                    self.panStart = pygame.Vector2(event.pos)
+                    self.panOffsetStart = self.offset
+            if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.dragging = None
                 elif event.button == 3:
-                    self.pan_start = None
-            elif event.type == pygame.MOUSEMOTION:
+                    self.panStart = None
+            if event.type == pygame.MOUSEMOTION:
                 if self.dragging:
-                    mouse_pos = pygame.Vector2(event.pos)
-                    new_pos = (mouse_pos + self.drag_offset-(mpX, mpY)) / self.zoom + self.offset + (mpX, mpY)
-                    self.bodyDict[self.dragging].position = tuple(new_pos)
+                    mousePos = pygame.Vector2(event.pos)
+                    newPos = (mousePos + self.dragOffset-(mpX, mpY)) / self.zoom + self.offset + (mpX, mpY)
+                    self.bodyDict[self.dragging].position = tuple(newPos)
                     self.bodyDict[self.dragging].velocity = (0, 0)
-                elif self.pan_start is not None:
-                    mouse_pos = pygame.Vector2(event.pos)
-                    delta = (self.pan_start - mouse_pos) / self.zoom
-                    self.offset = self.pan_offset_start + delta
+                elif self.panStart is not None:
+                    mousePos = pygame.Vector2(event.pos)
+                    delta = (self.panStart - mousePos) / self.zoom
+                    self.offset = self.panOffsetStart + delta
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_v: # kill momentum of all bodies
                     for name, body in self.bodyDict.items():
                         body.velocity = (0, 0)
                 elif event.key == pygame.K_m: # stop collisions
-                    self.collisions_enabled = not self.collisions_enabled
-                    self.update_collision_filters()
+                    self.collisionsEnabled = not self.collisionsEnabled
+                    self.updateCollisionFilters()
                 elif event.key == pygame.K_n: # freeze simulation
-                    if self.simulation: self.simulation = False
-                    else:               self.simulation = True
+                    self.simulation = not self.simulation
                 elif event.key == pygame.K_b: # toggle text rendering
-                    if self.renderAllText:  self.renderAllText = False
-                    else:                   self.renderAllText = True
+                    self.renderAllText = not self.renderAllText
+                elif event.key == pygame.K_c:
+                    self.highlightMode = (self.highlightMode + 1) % 3
         return True
 
-    def update_collision_filters(self):
+    def updateCollisionFilters(self):
         for body in self.bodyDict.values():
             for shape in body.shapes:
-                if self.collisions_enabled:
+                if self.collisionsEnabled:
                     shape.filter = pymunk.ShapeFilter(group=0)  # Enable collisions
                 else:
                     shape.filter = pymunk.ShapeFilter(group=1)  # Disable collisions
 
-    def getColour(self, name, depth_map, max_depth, highlightList, defaultCol = "slateblue3"):
+    def getColour(self, name, depthMap, dataList, defaultCol = "slateblue3"):
+        maxDepth = max(depthMap.values(), default=1)
         if name == self.selected:
             return "YELLOW"
-        elif name in highlightList:
-            depth = depth_map[name]
-            intensity = int((depth / max_depth) * 255)  # Lower depth = lower intensity
-            return (255, intensity, intensity)  # Gradient red color
+        elif name in dataList:
+            depth = depthMap.get(name, 0)  # Use .get() to avoid KeyError
+            intensity = int((depth / maxDepth) * 255)
+            return (255, intensity, intensity)
         else:
             return defaultCol
+        
+    def computeDescendantCounts(self):
+        descendantCounts = {}
+        for node in self.bodyDict:
+            children = self.graph.getChildren(node)
+            descendantCounts[node] = max(0, len(children) - 1)
+        return descendantCounts
 
-    def updateGraphics(self, highlightList=[]):
+
+    def updateGraphics(self):
         self.screen.fill("slategray3")
-        self.frame_count += 1
-        if self.frame_count % 3 == 0:
-            self.apply_repulsion()
+        self.frameCount += 1
+        if self.frameCount % 3 == 0:
+            self.applyRepulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
-
-        # Create a depth map for the highlight list
-        depth_map = {name: depth for depth, name in enumerate(highlightList)}
-        max_depth = max(depth_map.values(), default=1)
+        depthMap = {}
+        highlightList = []
+        if self.highlightMode == 1:  # Direct Parent-based
+            parentDict = self.graph.parentDict
+            # Reverse the parent count: maxCount - count
+            parentCounts = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
+            maxCount = max(parentCounts.values(), default=1)
+            depthMap = {name: maxCount - count for name, count in parentCounts.items()}
+            highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
+        elif self.highlightMode == 2:  # ALL Descendant-based
+            # Reverse the descendant count: maxCount - count
+            descendantCounts = self.computeDescendantCounts()
+            maxCount = max(descendantCounts.values(), default=1)
+            depthMap = {name: maxCount - count for name, count in descendantCounts.items()}
+            highlightList = [name for name, count in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
+        elif self.highlightMode == 0:  # OFF (selection only)
+            if self.selected is not None:
+                highlightList = self.graph.getChildren(self.selected)
+                depthMap = {name: depth for depth, name in enumerate(highlightList)}
+            else:
+                depthMap = {}
+                highlightList = []
 
         # DRAW ORDER:
         # 1. Draw all lines (without arrowheads)
         for joint in self.jointList:
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-            source_name = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
-            line_colour = self.getColour(source_name, depth_map, max_depth, highlightList, defaultCol="slategray2")
-            pygame.draw.line(self.screen, line_colour, coords1, coords2, 2)
+            sourceName = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
+            if self.highlightMode == 1: # highlighting arrows doesn't make sense for mode 1
+                lineColour = "slategray2"
+            else:
+                lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
+            pygame.draw.line(self.screen, lineColour, coords1, coords2, 2)
 
         # 2. Draw all circles and text
-        font_size = max(1, int(18 * self.zoom))  # Ensure font size is at least 1
-        if not hasattr(self, "_cached_font_size") or self._cached_font_size != font_size:
-            self.font = pygame.freetype.SysFont(None, font_size)
-            self._cached_font_size = font_size
+        fontSize = max(1, int(18 * self.zoom))  # Ensure font size is at least 1
+        if not hasattr(self, "_cachedFontSize") or self._cachedFontSize != fontSize:
+            self.font = pygame.freetype.SysFont(None, fontSize)
+            self._cachedFontSize = fontSize
         for name, body in self.bodyDict.items():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-            colour = self.getColour(name, depth_map, max_depth, highlightList)
+            colour = self.getColour(name, depthMap, highlightList)
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
             # decide whether node needs to render text
-            if name in highlightList or name == self.selected or self.renderAllText:
-                text_surface, rect = self.font.render(name[30:], "BLACK")
-                self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
+            if self.renderAllText or (self.highlightMode == 0 and (name in highlightList or name == self.selected)) or (self.highlightMode in (1, 2) and (name == self.selected or name in self.graph.getChildren(self.selected))):
+                textSurface, rect = self.font.render(name[30:], "BLACK")
+                self.screen.blit(textSurface, (coords[0] + 22, coords[1] - 10))
+                textSurface, rect = self.font.render(name[30:], "BLACK")
+                self.screen.blit(textSurface, (coords[0] + 22, coords[1] - 10))
 
         # 3. Draw all arrowheads
         for joint in self.jointList:
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-            source_name = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
-            line_colour = self.getColour(source_name, depth_map, max_depth, highlightList, defaultCol="slategray2")
+            sourceName = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
+            if self.highlightMode == 1: # arrows don't scale when zooming out - so highlighting arrows by destination mattres more for mode 1
+                toName = next((name for name, body in self.bodyDict.items() if body == joint.b), None)
+                lineColour = self.getColour(toName, depthMap, highlightList, defaultCol="slategray2")
+            else:
+                lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
             direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
             direction.scale_to_length(10)  # Length of the arrowhead
             left = pygame.Vector2(-direction.y, direction.x) * 0.5
             right = pygame.Vector2(direction.y, -direction.x) * 0.5
-            arrow_tip = pygame.Vector2(coords2)
+            arrowTip = pygame.Vector2(coords2)
             pygame.draw.polygon(
                 self.screen,
-                line_colour,
-                [arrow_tip, arrow_tip - direction + left, arrow_tip - direction + right],
+                lineColour,
+                [arrowTip, arrowTip - direction + left, arrowTip - direction + right],
             )
 
         pygame.display.update()
         if self.simulation:
             self.space.step(1 / 60)
             self.clock.tick(60)
+
