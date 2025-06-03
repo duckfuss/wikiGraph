@@ -1,11 +1,11 @@
 import grapher
 import scraper
-import springSim
+import graphics
 import time
 
 duck = scraper.Scraper()
 graph = grapher.Graph()
-sim = springSim.Sim()
+sim = graphics.Sim()
 sim.setGraph(graph)
 
 # don't change:
@@ -15,9 +15,9 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 30
+maxSeeds = 100
 pageDepth = 10  # doesn't really matter if noOrphans is set to True
-pageBreadth = 2
+pageBreadth = 1
 noOrphans = True
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely

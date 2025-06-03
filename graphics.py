@@ -25,12 +25,12 @@ class Sim():
 
         self.font = pygame.freetype.SysFont(None, 18)
         
-        self.selected = None
-        self.renderAllText = False  # Flag to control text rendering
-        self.frameCount = 0
-        self.simulation = True
-        self.collisionsEnabled = False
-        self.highlightMode = 0  # 0=OFF, 1=weightCol, 2=descendantHighlight
+        self.selected = None            # Currently selected node
+        self.renderAllText = False      # Flag to control text rendering
+        self.frameCount = 0             # Frame counter for repulsion application
+        self.simulation = True          # Flag to control simulation step
+        self.collisionsEnabled = False  # Flag to control collision detection
+        self.highlightMode = 0          # 0=OFF, 1=weightCol, 2=descendantHighlight
 
     def setGraph(self, graph):
         self.graph = graph
