@@ -6,6 +6,7 @@ import time
 duck = scraper.Scraper()
 graph = grapher.Graph()
 sim = springSim.Sim()
+sim.setGraph(graph)
 
 # don't change:
 running = True
@@ -14,9 +15,9 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 10
+maxSeeds = 2
 pageDepth = 10  # doesn't really matter if noOrphans is set to True
-pageBreadth = 2
+pageBreadth = 1
 noOrphans = True
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
@@ -59,6 +60,7 @@ if noOrphans:
             break
 
 duck.browser.quit()
+graph.generateParentDict()
 print("DONE - generated", len(graph.graphDict), "nodes")
 
 # Generate graph visualizationx
@@ -69,10 +71,4 @@ for node, links in graph.graphDict.items():
 localSelected = "bob" # ensures update highlight on first loop
 while running:
     running = sim.handleEvents()
-    if localSelected != sim.selected: # only update highlight if selection changes
-        localSelected = sim.selected
-        if sim.selected is not None:
-            highlight = graph.getChildren(sim.selected)
-        else:
-            highlight = []
-    sim.updateGraphics(highlight)
+    sim.updateGraphics()
