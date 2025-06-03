@@ -34,18 +34,24 @@ NB: non-latin script languages don't display nice!
 
 ## In app window
 
-| Control    | Effect                                                    |
-| ---------- | --------------------------------------------------------- |
-| Left Click | Highlight selected node and show it's children            |
-| Left Drag  | Move node                                                 |
-| Right Drag | Pan                                                       |
-| c          | heatmap by no. inputs                                     |
-| v          | Cancel momentum of all bodies                             |
-| b          | toggle text rendering (will still show on selected nodes) |
-| m          | Toggle collisions between nodes                           |
-| n          | Freeze spring simulations                                 |
+| Control       | Effect                                                    |
+| ------------- | --------------------------------------------------------- |
+| Left Click    | Highlight selected node and show it's children            |
+| Left Drag     | Move node                                                 |
+| Right Drag    | Pan                                                       |
+| c (Def. 0)   | toggle highlighting modes (see below)                     |
+| v (Def. OFF) | Cancel velocity of all bodies                             |
+| b (Def. OFF) | toggle text rendering (will still show on selected nodes) |
+| m (Def. OFF)  | Toggle collisions between nodes                           |
+| n (Def. OFF) | Freeze spring simulations                                 |
 
 NB: toggling text rendering and collisions OFF can help performance for large graphs 
+
+### Highlighting modes:
+
+0. (Default) clicking a node highlight's it's descendants with heatmap based off distance from selected node
+1. highlight all nodes with heatmap based off number of parents (links IN)
+2. Highlight all nodes with heatmap based off number of descendants
 
 # Images:
 

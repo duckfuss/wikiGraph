@@ -29,7 +29,7 @@ class Sim():
         self.renderAllText = False  # Flag to control text rendering
         self.frameCount = 0
         self.simulation = True
-        self.collisionsEnabled = True
+        self.collisionsEnabled = False
         self.highlightMode = 0  # 0=OFF, 1=weightCol, 2=descendantHighlight
 
     def setGraph(self, graph):
@@ -237,7 +237,10 @@ class Sim():
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             sourceName = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
-            lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
+            if self.highlightMode == 1: # highlighting arrows doesn't make sense for mode 1
+                lineColour = "slategray2"
+            else:
+                lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
             pygame.draw.line(self.screen, lineColour, coords1, coords2, 2)
 
         # 2. Draw all circles and text
@@ -250,7 +253,9 @@ class Sim():
             colour = self.getColour(name, depthMap, highlightList)
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
             # decide whether node needs to render text
-            if name in highlightList or name == self.selected or self.renderAllText:
+            if self.renderAllText or (self.highlightMode == 0 and (name in highlightList or name == self.selected)) or (self.highlightMode in (1, 2) and name == self.selected):
+                textSurface, rect = self.font.render(name[30:], "BLACK")
+                self.screen.blit(textSurface, (coords[0] + 22, coords[1] - 10))
                 textSurface, rect = self.font.render(name[30:], "BLACK")
                 self.screen.blit(textSurface, (coords[0] + 22, coords[1] - 10))
 
@@ -259,8 +264,9 @@ class Sim():
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             sourceName = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
-            if self.highlightMode == 1: # highlighting arrows doesn't make sense for mode 1
-                lineColour = "slategray2"
+            if self.highlightMode == 1: # arrows don't scale when zooming out - so highlighting arrows by destination mattres more for mode 1
+                toName = next((name for name, body in self.bodyDict.items() if body == joint.b), None)
+                lineColour = self.getColour(toName, depthMap, highlightList, defaultCol="slategray2")
             else:
                 lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
             direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
