@@ -43,7 +43,7 @@ class Sim():
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
             circle.friction = 0.5
-            circle.filter = pymunk.ShapeFilter(group=0)
+            circle.filter = pymunk.ShapeFilter(group=1) # Default to collisions disabled
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
             # If body is linked to another, place near the linked body
@@ -253,7 +253,7 @@ class Sim():
             colour = self.getColour(name, depthMap, highlightList)
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
             # decide whether node needs to render text
-            if self.renderAllText or (self.highlightMode == 0 and (name in highlightList or name == self.selected)) or (self.highlightMode in (1, 2) and name == self.selected):
+            if self.renderAllText or (self.highlightMode == 0 and (name in highlightList or name == self.selected)) or (self.highlightMode in (1, 2) and (name == self.selected or name in self.graph.getChildren(self.selected))):
                 textSurface, rect = self.font.render(name[30:], "BLACK")
                 self.screen.blit(textSurface, (coords[0] + 22, coords[1] - 10))
                 textSurface, rect = self.font.render(name[30:], "BLACK")
