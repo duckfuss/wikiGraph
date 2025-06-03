@@ -189,6 +189,10 @@ class Sim():
 
     def getColour(self, name, depthMap, dataList, defaultCol = "slateblue3"):
         maxDepth = max(depthMap.values(), default=1)
+        if self.weightCol:
+            depth = depthMap.get(name, 0)
+            intensity = int((depth / maxDepth) * 255)
+            return (intensity, 100, 255 - intensity)
         if name == self.selected:
             return "YELLOW"
         elif name in dataList:
