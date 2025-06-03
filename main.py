@@ -14,10 +14,10 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 10
-pageDepth = 10
-pageBreadth = 10
-noOrphans = False
+maxSeeds = 100
+pageDepth = 15 # doesn't really matter if noOrphans is True
+pageBreadth = 1
+noOrphans = True
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
 #------------------------------------#
@@ -46,16 +46,19 @@ for seed in range(maxSeeds):
     exploreLinksAndGraph(duck.getRandomPage(language=lanugage), pageBreadth, pageDepth)
 
 if noOrphans:
-    for i in range(3):
-        print("PROCESSING DEAD END NODES", i)
-        # complete dead ends
-        dead_end_nodes = [node for node, links in graph.graphDict.items() if links == set()]
-        for node in dead_end_nodes:
-            print(i, "DEAD_END---------------", node)
+    for i in range(50): # functionally while True
+        print(i, "PROCESSING DEAD END NODES")
+        orphanNodeList = [node for node, links in graph.graphDict.items() if links == set()]
+        if len(orphanNodeList) == 0:
+            print("No more orphan nodes to process.")
+            break
+        for node in orphanNodeList:
+            print(i, "DEAD END---------------", node)
             exploreLinksAndGraph(node, 1, 10)
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")
+
 # Generate graph visualizationx
 for node, links in graph.graphDict.items():
     sim.introduceNode(node, links)

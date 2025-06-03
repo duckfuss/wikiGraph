@@ -27,6 +27,7 @@ class Sim():
         self.font = pygame.freetype.SysFont(None, 18)
 
         self.collisions_enabled = True  # Flag to track collision state
+        self.renderAllText = True  # Flag to control text rendering
         self.frame_count = 0
 
     def createBodyIfNew(self, name, linked_to=None):
@@ -63,7 +64,8 @@ class Sim():
 
     def apply_repulsion(self):
         k = 100000
-        cell_size = 150  # Adjust for your graph density
+        max_force = 5000  # maximum repulsion force
+        cell_size = 150  # adjust for graph density (optimisation)
         grid = {}
 
         # Assign bodies to grid cells
@@ -80,14 +82,15 @@ class Sim():
                     neighborCell = (cell[0] + dx, cell[1] + dy)
                     neighborsList.extend(grid.get(neighborCell, []))
             for neighbour in neighborsList:
-                if neighbour is body: # Don't apply repulsion to itself
+                if neighbour is body:  # Don't apply repulsion to itself
                     continue
                 delta = body.position - neighbour.position
                 dist = max(delta.length, 1)
-                if dist > cell_size * 2: # don't bother if node is super far away
+                if dist > cell_size * 2:  # don't bother if node is super far away
                     continue
                 direction = delta.normalized() if dist > 0 else pymunk.Vec2d(1, 0)
                 force = k / (dist ** 2)
+                force = min(force, max_force)  # Clamp the force
                 repulse = direction * force
                 body.apply_force_at_world_point(repulse, body.position)
                 neighbour.apply_force_at_world_point(-repulse, neighbour.position)
@@ -149,10 +152,11 @@ class Sim():
                     self.collisions_enabled = not self.collisions_enabled
                     self.update_collision_filters()
                 elif event.key == pygame.K_n: # freeze simulation
-                    if self.simulation:
-                        self.simulation = False
-                    else:
-                        self.simulation = True
+                    if self.simulation: self.simulation = False
+                    else:               self.simulation = True
+                elif event.key == pygame.K_b: # toggle text rendering
+                    if self.renderAllText:  self.renderAllText = False
+                    else:                   self.renderAllText = True
         return True
 
     def update_collision_filters(self):
@@ -202,8 +206,10 @@ class Sim():
             coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             colour = self.getColour(name, depth_map, max_depth, highlightList)
             pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
-            text_surface, rect = self.font.render(name[30:], "BLACK")
-            self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
+            # decide whether node needs to render text
+            if name in highlightList or name == self.selected or self.renderAllText:
+                text_surface, rect = self.font.render(name[30:], "BLACK")
+                self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
 
         # 3. Draw all arrowheads
         for joint in self.jointList:
