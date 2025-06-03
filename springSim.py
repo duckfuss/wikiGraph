@@ -192,7 +192,7 @@ class Sim():
         if name == self.selected:
             return "YELLOW"
         elif name in dataList:
-            depth = depthMap[name]
+            depth = depthMap.get(name, 0)  # Use .get() to avoid KeyError
             intensity = int((depth / maxDepth) * 255)
             return (255, intensity, intensity)
         else:
@@ -211,11 +211,11 @@ class Sim():
             depthMap = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
             highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
         elif self.selected is not None:
-            depthMap = {name: depth for depth, name in enumerate(highlightList)}
             highlightList = self.graph.getChildren(self.selected)
+            depthMap = {name: depth for depth, name in enumerate(highlightList)}
         else:
             depthMap = {}
-            highlightList = list(self.bodyDict.keys())
+            highlightList = []
 
         # DRAW ORDER:
         # 1. Draw all lines (without arrowheads)
