@@ -15,9 +15,9 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 2
+maxSeeds = 30
 pageDepth = 10  # doesn't really matter if noOrphans is set to True
-pageBreadth = 1
+pageBreadth = 2
 noOrphans = True
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
