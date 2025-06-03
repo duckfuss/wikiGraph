@@ -26,11 +26,11 @@ class Sim():
         self.font = pygame.freetype.SysFont(None, 18)
         
         self.selected = None
-        self.weightCol = False  # Flag to control weight coloring
-        self.collisionsEnabled = False  # Flag to track collision state
         self.renderAllText = False  # Flag to control text rendering
         self.frameCount = 0
         self.simulation = True
+        self.collisionsEnabled = True
+        self.highlightMode = 0  # 0=OFF, 1=weightCol, 2=descendantHighlight
 
     def setGraph(self, graph):
         self.graph = graph
@@ -43,7 +43,7 @@ class Sim():
             circle = pymunk.Circle(body, radius=20)
             circle.elasticity = 0.9
             circle.friction = 0.5
-            circle.filter = pymunk.ShapeFilter(group=0)  # Default to collisions enabled
+            circle.filter = pymunk.ShapeFilter(group=0)
             circle.colour = pygame.Color("red")
             self.space.add(body, circle)
             # If body is linked to another, place near the linked body
@@ -67,9 +67,9 @@ class Sim():
                 self.space.add(joint)
 
     def applyRepulsion(self):
-        k = 100000          # repulsion constant    
-        maxForce = 5000    # maximum repulsion force
-        cellSize = 150     # adjust for graph density (optimisation)
+        k = 100000          # repulsion constant      
+        maxForce = 5000     # maximum repulsion force
+        cellSize = 150      # adjust for graph density (optimisation)
         centralK = 20000    # strength of central repulsion
         grid = {}
 
@@ -113,7 +113,6 @@ class Sim():
             body.apply_force_at_world_point(repulseC, body.position)
 
     def getBodyAtPos(self, pos):
-        # pos is screen coordinates
         mpX, mpY = self.xMax/2, self.yMax/2
         for name, body in self.bodyDict.items():
             screenPos = ((body.position - self.offset) - (mpX, mpY)) * self.zoom + (mpX, mpY)
@@ -172,8 +171,8 @@ class Sim():
                     self.simulation = not self.simulation
                 elif event.key == pygame.K_b: # toggle text rendering
                     self.renderAllText = not self.renderAllText
-                elif event.key == pygame.K_c: # toggle weightCol
-                    self.weightCol = not self.weightCol
+                elif event.key == pygame.K_c:
+                    self.highlightMode = (self.highlightMode + 1) % 3
         return True
 
     def updateCollisionFilters(self):
@@ -186,10 +185,6 @@ class Sim():
 
     def getColour(self, name, depthMap, dataList, defaultCol = "slateblue3"):
         maxDepth = max(depthMap.values(), default=1)
-        if self.weightCol:
-            depth = depthMap.get(name, 0)
-            intensity = int((depth / maxDepth) * 255)
-            return (intensity, 100, 255 - intensity)
         if name == self.selected:
             return "YELLOW"
         elif name in dataList:
@@ -198,6 +193,14 @@ class Sim():
             return (255, intensity, intensity)
         else:
             return defaultCol
+        
+    def computeDescendantCounts(self):
+        descendantCounts = {}
+        for node in self.bodyDict:
+            children = self.graph.getChildren(node)
+            descendantCounts[node] = max(0, len(children) - 1)
+        return descendantCounts
+
 
     def updateGraphics(self):
         self.screen.fill("slategray3")
@@ -205,18 +208,20 @@ class Sim():
         if self.frameCount % 3 == 0:
             self.applyRepulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
-
-        # Create a depth map for weightCol
-        if self.weightCol:
+        if self.highlightMode == 1:  # Direct Parent-based
             parentDict = self.graph.parentDict
             depthMap = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
-            highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
-        elif self.selected is not None:
-            highlightList = self.graph.getChildren(self.selected)
-            depthMap = {name: depth for depth, name in enumerate(highlightList)}
-        else:
-            depthMap = {}
-            highlightList = []
+            highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=False)]
+        elif self.highlightMode == 2:  # ALL Descendant-based
+            depthMap = self.computeDescendantCounts()
+            highlightList = [name for name, count in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
+        elif self.highlightMode == 0:  # OFF (selection only)
+            if self.selected is not None:
+                highlightList = self.graph.getChildren(self.selected)
+                depthMap = {name: depth for depth, name in enumerate(highlightList)}
+            else:
+                depthMap = {}
+                highlightList = []
 
         # DRAW ORDER:
         # 1. Draw all lines (without arrowheads)
@@ -246,7 +251,10 @@ class Sim():
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             sourceName = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
-            lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
+            if self.highlightMode == 1: # highlighting arrows doesn't make sense for mode 1
+                lineColour = "slategray2"
+            else:
+                lineColour = self.getColour(sourceName, depthMap, highlightList, defaultCol="slategray2")
             direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
             direction.scale_to_length(10)  # Length of the arrowhead
             left = pygame.Vector2(-direction.y, direction.x) * 0.5
@@ -262,3 +270,4 @@ class Sim():
         if self.simulation:
             self.space.step(1 / 60)
             self.clock.tick(60)
+
