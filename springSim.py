@@ -208,12 +208,20 @@ class Sim():
         if self.frameCount % 3 == 0:
             self.applyRepulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
+        depthMap = {}
+        highlightList = []
         if self.highlightMode == 1:  # Direct Parent-based
             parentDict = self.graph.parentDict
-            depthMap = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
-            highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=False)]
+            # Reverse the parent count: maxCount - count
+            parentCounts = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
+            maxCount = max(parentCounts.values(), default=1)
+            depthMap = {name: maxCount - count for name, count in parentCounts.items()}
+            highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
         elif self.highlightMode == 2:  # ALL Descendant-based
-            depthMap = self.computeDescendantCounts()
+            # Reverse the descendant count: maxCount - count
+            descendantCounts = self.computeDescendantCounts()
+            maxCount = max(descendantCounts.values(), default=1)
+            depthMap = {name: maxCount - count for name, count in descendantCounts.items()}
             highlightList = [name for name, count in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
         elif self.highlightMode == 0:  # OFF (selection only)
             if self.selected is not None:
