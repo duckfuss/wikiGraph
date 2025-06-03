@@ -27,6 +27,7 @@ class Sim():
         self.font = pygame.freetype.SysFont(None, 18)
 
         self.collisions_enabled = True  # Flag to track collision state
+        self.frame_count = 0
 
     def createBodyIfNew(self, name, linked_to=None):
         if name not in self.bodyDict.keys():
@@ -61,18 +62,35 @@ class Sim():
                 self.space.add(joint)
 
     def apply_repulsion(self):
-        k = 100000  # repulsion constant
-        bodies = list(self.bodyDict.values())
-        for i, body1 in enumerate(bodies):
-            for body2 in bodies[i+1:]:
-                delta = body1.position - body2.position
+        k = 100000
+        cell_size = 150  # Adjust for your graph density
+        grid = {}
+
+        # Assign bodies to grid cells
+        for name, body in self.bodyDict.items():
+            cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
+            grid.setdefault(cell, []).append(body)
+
+        # For each body, only check nearby cells
+        for name, body in self.bodyDict.items():
+            cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
+            neighborsList = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    neighborCell = (cell[0] + dx, cell[1] + dy)
+                    neighborsList.extend(grid.get(neighborCell, []))
+            for neighbour in neighborsList:
+                if neighbour is body: # Don't apply repulsion to itself
+                    continue
+                delta = body.position - neighbour.position
                 dist = max(delta.length, 1)
+                if dist > cell_size * 2: # don't bother if node is super far away
+                    continue
                 direction = delta.normalized() if dist > 0 else pymunk.Vec2d(1, 0)
                 force = k / (dist ** 2)
                 repulse = direction * force
-                # Apply equal and opposite forces
-                body1.apply_force_at_world_point(repulse, body1.position)
-                body2.apply_force_at_world_point(-repulse, body2.position)
+                body.apply_force_at_world_point(repulse, body.position)
+                neighbour.apply_force_at_world_point(-repulse, neighbour.position)
 
     def get_body_at_pos(self, pos):
         # pos is screen coordinates
@@ -157,41 +175,42 @@ class Sim():
 
     def updateGraphics(self, highlightList=[]):
         self.screen.fill("slategray3")
-        self.apply_repulsion()
+        self.frame_count += 1
+        if self.frame_count % 3 == 0:
+            self.apply_repulsion()
         mpX, mpY = self.xMax / 2, self.yMax / 2
 
         # Create a depth map for the highlight list
         depth_map = {name: depth for depth, name in enumerate(highlightList)}
         max_depth = max(depth_map.values(), default=1)
 
-        for name, body in self.bodyDict.items():
-            coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-
-            # Get the node color using the helper function
-            colour = self.getColour(name, depth_map, max_depth, highlightList)
-
-            # Draw the node
-            pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
-
-            # Render the label
-            font_size = int(18 * self.zoom)
-            self.font.size = font_size
-            text_surface, rect = self.font.render(name[30:], "BLACK")
-            self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
-
-        # Draw connections (lines and arrowheads)
+        # DRAW ORDER:
+        # 1. Draw all lines (without arrowheads)
         for joint in self.jointList:
             coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
             coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
-
-            # Get the line color using the helper function
             source_name = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
             line_colour = self.getColour(source_name, depth_map, max_depth, highlightList, defaultCol="slategray2")
-
-            # Draw the line
             pygame.draw.line(self.screen, line_colour, coords1, coords2, 2)
 
-            # Draw the arrowhead
+        # 2. Draw all circles and text
+        font_size = int(18 * self.zoom)
+        if not hasattr(self, "_cached_font_size") or self._cached_font_size != font_size:
+            self.font = pygame.freetype.SysFont(None, font_size)
+            self._cached_font_size = font_size
+        for name, body in self.bodyDict.items():
+            coords = (((body.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+            colour = self.getColour(name, depth_map, max_depth, highlightList)
+            pygame.draw.circle(self.screen, colour, coords, int(20 * self.zoom))
+            text_surface, rect = self.font.render(name[30:], "BLACK")
+            self.screen.blit(text_surface, (coords[0] + 22, coords[1] - 10))
+
+        # 3. Draw all arrowheads
+        for joint in self.jointList:
+            coords1 = (((joint.a.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+            coords2 = (((joint.b.position - self.offset) - (mpX, mpY)) * self.zoom) + (mpX, mpY)
+            source_name = next((name for name, body in self.bodyDict.items() if body == joint.a), None)
+            line_colour = self.getColour(source_name, depth_map, max_depth, highlightList, defaultCol="slategray2")
             direction = pygame.Vector2(coords2) - pygame.Vector2(coords1)
             direction.scale_to_length(10)  # Length of the arrowhead
             left = pygame.Vector2(-direction.y, direction.x) * 0.5
@@ -206,4 +225,4 @@ class Sim():
         pygame.display.update()
         if self.simulation:
             self.space.step(1 / 60)
-            self.clock.tick(240)
+            self.clock.tick(60)

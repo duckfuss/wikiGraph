@@ -16,8 +16,8 @@ pagesVisited, SLIndex = 0, 0
 #------------------------------------#
 maxSeeds = 10
 pageDepth = 10
-pageBreadth = 1
-noOrphans = True
+pageBreadth = 10
+noOrphans = False
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
 #------------------------------------#
@@ -31,11 +31,10 @@ def exploreLinksAndGraph(startSite, breadth, depth):
         if graph.graphDict[node] == set():  # If node's new
             print(pagesVisited, node)
             links = duck.collectLinks(node, breadth=breadth)
-            graph.addNode(node, links) #type: ignore
+            graph.addNode(node, links) # type: ignore
              # abort if cannot find a follow-on link:
             if links:   node = links[0] 
             else:       return
-            print("links:", links)
             pagesVisited += 1
         else:  # Skip already visited nodes
             print(f"Skipping already visited page: {node}")
