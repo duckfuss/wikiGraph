@@ -27,8 +27,8 @@ class Sim():
         
         self.selected = None
         self.weightCol = False  # Flag to control weight coloring
-        self.collisionsEnabled = True  # Flag to track collision state
-        self.renderAllText = True  # Flag to control text rendering
+        self.collisionsEnabled = False  # Flag to track collision state
+        self.renderAllText = False  # Flag to control text rendering
         self.frameCount = 0
         self.simulation = True
 
@@ -127,12 +127,12 @@ class Sim():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
-            elif event.type == pygame.MOUSEWHEEL:
+            if event.type == pygame.MOUSEWHEEL:
                 if event.y > 0:
                     self.zoom *= 1.1
                 elif event.y < 0:
                     self.zoom /= 1.1
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left click
                     name = self.getBodyAtPos(event.pos)
                     if name:
@@ -146,12 +146,12 @@ class Sim():
                 elif event.button == 3:  # Right click for panning
                     self.panStart = pygame.Vector2(event.pos)
                     self.panOffsetStart = self.offset
-            elif event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.dragging = None
                 elif event.button == 3:
                     self.panStart = None
-            elif event.type == pygame.MOUSEMOTION:
+            if event.type == pygame.MOUSEMOTION:
                 if self.dragging:
                     mousePos = pygame.Vector2(event.pos)
                     newPos = (mousePos + self.dragOffset-(mpX, mpY)) / self.zoom + self.offset + (mpX, mpY)
@@ -169,14 +169,11 @@ class Sim():
                     self.collisionsEnabled = not self.collisionsEnabled
                     self.updateCollisionFilters()
                 elif event.key == pygame.K_n: # freeze simulation
-                    if self.simulation: self.simulation = False
-                    else:               self.simulation = True
+                    self.simulation = not self.simulation
                 elif event.key == pygame.K_b: # toggle text rendering
-                    if self.renderAllText:  self.renderAllText = False
-                    else:                   self.renderAllText = True
-                elif event.key == pygame.K_c: # toggle text rendering
-                    if self.weightCol:      self.weightCol = False
-                    else:                   self.weightCol = True
+                    self.renderAllText = not self.renderAllText
+                elif event.key == pygame.K_c: # toggle weightCol
+                    self.weightCol = not self.weightCol
         return True
 
     def updateCollisionFilters(self):

@@ -15,7 +15,7 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 100
+maxSeeds = 50
 pageDepth = 10  # doesn't really matter if noOrphans is set to True
 pageBreadth = 1
 noOrphans = True
