@@ -14,9 +14,9 @@ pagesVisited, SLIndex = 0, 0
 
 # change at will:
 #------------------------------------#
-maxSeeds = 100
-pageDepth = 15 # doesn't really matter if noOrphans is True
-pageBreadth = 1
+maxSeeds = 10
+pageDepth = 10  # doesn't really matter if noOrphans is set to True
+pageBreadth = 2
 noOrphans = True
 lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
@@ -29,32 +29,34 @@ def exploreLinksAndGraph(startSite, breadth, depth):
     print("startSite:", startSite)
     while pagesVisited < depth:
         if graph.graphDict[node] == set():  # If node's new
-            print(pagesVisited, node)
+            print(pagesVisited, node[30:])
             links = duck.collectLinks(node, breadth=breadth)
             graph.addNode(node, links) # type: ignore
              # abort if cannot find a follow-on link:
             if links:   node = links[0] 
-            else:       return
+            else:       return None
             pagesVisited += 1
         else:  # Skip already visited nodes
-            print(f"Skipping already visited page: {node}")
-            return
+            print("Skipping already visited page:", node[30:])
+            return pagesVisited
+    return pagesVisited # never used, but could be useful for debugging
 
 # traverse wikipedia
 for seed in range(maxSeeds):
-    print("TRAVERSING---------------", seed)
+    print("\nTRAVERSING---------------", seed)
     exploreLinksAndGraph(duck.getRandomPage(language=lanugage), pageBreadth, pageDepth)
 
 if noOrphans:
-    for i in range(50): # functionally while True
-        print(i, "PROCESSING DEAD END NODES")
+    for i in range(500): # functionally while True
+        print("\n\n\nPROCESSING DEAD END NODES", i)
         orphanNodeList = [node for node, links in graph.graphDict.items() if links == set()]
-        if len(orphanNodeList) == 0:
-            print("No more orphan nodes to process.")
-            break
+        deadNodes = 0
         for node in orphanNodeList:
-            print(i, "DEAD END---------------", node)
-            exploreLinksAndGraph(node, 1, 10)
+            print("\nDEAD END---------------", node[30:], i)
+            if exploreLinksAndGraph(node, 1, 10) is None:   deadNodes += 1
+        if len(orphanNodeList) == 0 or len(orphanNodeList) <= deadNodes:
+            print("No more orphan nodes to process.", orphanNodeList)
+            break
 
 duck.browser.quit()
 print("DONE - generated", len(graph.graphDict), "nodes")

@@ -14,7 +14,16 @@ class Graph():
         for link in links:
             if link not in self.graphDict.keys():
                 self.graphDict[link] = set()
-    
+
+    def removeNode(self, node:str, noOrphans:bool=False):
+        # remove node and all links to it
+        if node in self.graphDict:
+            del self.graphDict[node]
+            if noOrphans:
+                for key in self.graphDict.keys():
+                    if node in self.graphDict[key]:
+                        self.graphDict[key].remove(node)
+
     def getChildren(self, node):
         visited = []  # Use a list to maintain order of traversal
         queue = [node]  # Use a queue to process nodes breadth-first

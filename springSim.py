@@ -63,17 +63,22 @@ class Sim():
                 self.space.add(joint)
 
     def apply_repulsion(self):
-        k = 100000
-        max_force = 5000  # maximum repulsion force
-        cell_size = 150  # adjust for graph density (optimisation)
+        k = 100000          # repulsion constant    
+        max_force = 5000    # maximum repulsion force
+        cell_size = 150     # adjust for graph density (optimisation)
+        central_k = 20000    # strength of central repulsion
         grid = {}
 
-        # Assign bodies to grid cells
+        # loop 1: assign to grid and compute centre of mass 
+        sum_pos, count = pymunk.Vec2d(0, 0), 0
         for name, body in self.bodyDict.items():
             cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
             grid.setdefault(cell, []).append(body)
+            sum_pos += body.position
+            count += 1
+        centre_of_mass = sum_pos / count
 
-        # For each body, only check nearby cells
+        # loop 2: apply repulsion and central force
         for name, body in self.bodyDict.items():
             cell = (int(body.position.x // cell_size), int(body.position.y // cell_size))
             neighborsList = []
@@ -94,6 +99,14 @@ class Sim():
                 repulse = direction * force
                 body.apply_force_at_world_point(repulse, body.position)
                 neighbour.apply_force_at_world_point(-repulse, neighbour.position)
+
+            # Central repulsion
+            delta_c = body.position - centre_of_mass
+            dist_c = max(delta_c.length, 1)
+            direction_c = delta_c.normalized() if dist_c > 0 else pymunk.Vec2d(1, 0)
+            force_c = central_k / dist_c
+            repulse_c = direction_c * force_c
+            body.apply_force_at_world_point(repulse_c, body.position)
 
     def get_body_at_pos(self, pos):
         # pos is screen coordinates
@@ -198,7 +211,7 @@ class Sim():
             pygame.draw.line(self.screen, line_colour, coords1, coords2, 2)
 
         # 2. Draw all circles and text
-        font_size = int(18 * self.zoom)
+        font_size = max(1, int(18 * self.zoom))  # Ensure font size is at least 1
         if not hasattr(self, "_cached_font_size") or self._cached_font_size != font_size:
             self.font = pygame.freetype.SysFont(None, font_size)
             self._cached_font_size = font_size

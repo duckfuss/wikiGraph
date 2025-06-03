@@ -34,15 +34,17 @@ NB: non-latin script languages don't display nice!
 
 ## In app window
 
-| Control    | Effect                                         |
-| ---------- | ---------------------------------------------- |
-| Left Click | Highlight selected node and show it's children |
-| Left Drag  | Move node                                      |
-| Right Drag | Pan                                            |
-| v          | Cancel momentum of all bodies                  |
-| b          | toggle text rendering                          |
-| m          | Toggle collisions between nodes                |
-| n          | Freeze spring simulations                      |
+| Control    | Effect                                                    |
+| ---------- | --------------------------------------------------------- |
+| Left Click | Highlight selected node and show it's children            |
+| Left Drag  | Move node                                                 |
+| Right Drag | Pan                                                       |
+| v          | Cancel momentum of all bodies                             |
+| b          | toggle text rendering (will still show on selected nodes) |
+| m          | Toggle collisions between nodes                           |
+| n          | Freeze spring simulations                                 |
+
+NB: toggling text rendering and collisions OFF can help performance for large graphs 
 
 # Images:
 
