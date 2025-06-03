@@ -39,6 +39,7 @@ NB: non-latin script languages don't display nice!
 | Left Click | Highlight selected node and show it's children            |
 | Left Drag  | Move node                                                 |
 | Right Drag | Pan                                                       |
+| c          | heatmap by no. inputs                                     |
 | v          | Cancel momentum of all bodies                             |
 | b          | toggle text rendering (will still show on selected nodes) |
 | m          | Toggle collisions between nodes                           |
