@@ -9,7 +9,7 @@ class Sim():
         pygame.init()
         self.clock = pygame.time.Clock()
         self.xMax, self.yMax = 1280, 720
-        self.screen = pygame.display.set_mode((self.xMax, self.yMax))
+        self.screen = pygame.display.set_mode((self.xMax, self.yMax), pygame.RESIZABLE)
         self.zoom = 1
         self.offset = pygame.Vector2(0, 0)
         self.dragging = None
@@ -126,6 +126,10 @@ class Sim():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
+            if event.type == pygame.VIDEORESIZE:
+                self.xMax, self.yMax = event.w, event.h
+                self.screen = pygame.display.set_mode((self.xMax, self.yMax), pygame.RESIZABLE)
+                self.drawOptions = pymunk.pygame_util.DrawOptions(self.screen)
             if event.type == pygame.MOUSEWHEEL:
                 if event.y > 0:
                     self.zoom *= 1.1
