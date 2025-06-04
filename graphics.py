@@ -248,7 +248,7 @@ class Sim():
             pygame.draw.line(self.screen, lineColour, coords1, coords2, 2)
 
         # 2. Draw all circles and text
-        fontSize = max(1, int(18 * self.zoom))  # Ensure font size is at least 1
+        fontSize = max(10, int(18 * self.zoom))  # Ensure font size is at least 1
         if not hasattr(self, "_cachedFontSize") or self._cachedFontSize != fontSize:
             self.font = pygame.freetype.SysFont(None, fontSize)
             self._cachedFontSize = fontSize
