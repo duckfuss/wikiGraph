@@ -71,7 +71,6 @@ NB: toggling text rendering and collisions OFF can help performance for large gr
 <img width="750" alt="Screenshot 2025-05-27 at 10 39 36 am" src="https://github.com/user-attachments/assets/f425bb96-7f73-488d-8872-c305d609bcfa" />
 
 
-## Larger example:
+## Larger example (graph with 2600 pages):
+<img width="2227" alt="Screenshot 2025-06-04 at 10 33 48 am" src="https://github.com/user-attachments/assets/d38d9cea-d49d-424b-b831-a12e5552f483" />
 
-<img width="1000" alt="Screenshot 2025-05-25 at 5 06 41 pm" src="https://github.com/user-attachments/assets/73293462-0e31-4926-85a0-0fa72e173a1e" />
-<img width="1000" alt="Screenshot 2025-05-25 at 5 06 56 pm" src="https://github.com/user-attachments/assets/344e64a9-fcb6-426c-979c-5f17a90c8353" />
