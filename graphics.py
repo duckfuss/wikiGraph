@@ -31,6 +31,7 @@ class Sim():
         self.simulation = True          # Flag to control simulation step
         self.collisionsEnabled = False  # Flag to control collision detection
         self.highlightMode = 0          # 0=OFF, 1=weightCol, 2=descendantHighlight
+        self.repulsionEnabled = True  # Add this line
 
     def setGraph(self, graph):
         self.graph = graph
@@ -90,21 +91,22 @@ class Sim():
                 for dy in [-1, 0, 1]:
                     neighborCell = (cell[0] + dx, cell[1] + dy)
                     neighborsList.extend(grid.get(neighborCell, []))
-            for neighbour in neighborsList:
-                if neighbour is body:  # Don't apply repulsion to itself
-                    continue
-                delta = body.position - neighbour.position
-                dist = max(delta.length, 1)
-                if dist > cellSize * 2:  # don't bother if node is super far away
-                    continue
-                direction = delta.normalized() if dist > 0 else pymunk.Vec2d(1, 0)
-                force = k / (dist ** 2)
-                force = min(force, maxForce)  # Clamp the force
-                repulse = direction * force
-                body.apply_force_at_world_point(repulse, body.position)
-                neighbour.apply_force_at_world_point(-repulse, neighbour.position)
+            if self.repulsionEnabled:
+                for neighbour in neighborsList:
+                    if neighbour is body:  # Don't apply repulsion to itself
+                        continue
+                    delta = body.position - neighbour.position
+                    dist = max(delta.length, 1)
+                    if dist > cellSize * 2:  # don't bother if node is super far away
+                        continue
+                    direction = delta.normalized() if dist > 0 else pymunk.Vec2d(1, 0)
+                    force = k / (dist ** 2)
+                    force = min(force, maxForce)  # Clamp the force
+                    repulse = direction * force
+                    body.apply_force_at_world_point(repulse, body.position)
+                    neighbour.apply_force_at_world_point(-repulse, neighbour.position)
 
-            # Central repulsion
+            # Central repulsion (always applied)
             deltaC = body.position - centreOfMass
             distC = max(deltaC.length, 1)
             directionC = deltaC.normalized() if distC > 0 else pymunk.Vec2d(1, 0)
@@ -177,6 +179,8 @@ class Sim():
                     self.renderAllText = not self.renderAllText
                 elif event.key == pygame.K_c:
                     self.highlightMode = (self.highlightMode + 1) % 3
+                elif event.key == pygame.K_x:
+                    self.repulsionEnabled = not self.repulsionEnabled
         return True
 
     def updateCollisionFilters(self):
@@ -283,6 +287,29 @@ class Sim():
                 lineColour,
                 [arrowTip, arrowTip - direction + left, arrowTip - direction + right],
             )
+
+        # 4. Draw Status
+        status_lines = [
+            f"Repulsion[x]: {'ON' if self.repulsionEnabled else 'OFF'}",
+            f"Highlight mode[c]: {['OFF', 'Parents', 'Descendants'][self.highlightMode]}",
+            f"Text[b]: {'ALL' if self.renderAllText else 'Auto'}",
+            f"Simulation[n]: {'ON' if self.simulation else 'OFF'}",
+            f"Collisions[m]: {'ON' if self.collisionsEnabled else 'OFF'}"
+        ]
+        statusFont = pygame.freetype.SysFont(None, 16)
+        y_offset = 10
+        for line in status_lines:
+            textSurface, rect = statusFont.render(line, "BLACK")
+            self.screen.blit(textSurface, (10, y_offset))
+            y_offset += rect.height + 2
+
+        # --- Selected node's child chain display ---
+        if self.selected:
+            children_chain = self.graph.getChildren(self.selected)
+            for idx, node in enumerate(children_chain):
+                textSurface, rect = statusFont.render(f"{idx}: {node[30:]}", "BLACK")
+                self.screen.blit(textSurface, (10, y_offset))
+                y_offset += rect.height + 2
 
         pygame.display.update()
         if self.simulation:
