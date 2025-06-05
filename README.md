@@ -13,7 +13,7 @@ this is an educational project only
 
 # What does it need
 
-- selenium  (scrape wikipedia)
+- selenium or BeautifulSoup  (scrape wikipedia)
 - pygame    (display network)
 - pymunk    (spring physics)
 - firefox
