@@ -28,6 +28,7 @@ this is an educational project only
 | pageDepth   | no. pages explored per seed                               |
 | pageBreadth | no. links explored per visited page                       |
 | noOrphans   | (T/F) ensures there are no nodes without outgoing links   |
+| scraper     | use either "Selenium" or "BeautifulSoup"                  |
 | Language    | English, French, Chinese, Japanese, Spanish, Latin, Scots |
 
 NB: non-latin script languages don't display nice!
