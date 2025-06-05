@@ -1,8 +1,6 @@
 import grapher
-import soupyScraper
 import graphics
 import time
-import asyncio
 
 # change at will:
 #------------------------------------#
@@ -10,13 +8,19 @@ maxSeeds = 10
 pageDepth = 50  # doesn't really matter if noOrphans is set to True
 pageBreadth = 1
 noOrphans = True
+scraper = "Selenium" # Supported: Selenium, BeautifulSoup
 language = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
 #------------------------------------#
 
 # initialise stuff
 graph = grapher.Graph()
-duck = soupyScraper.Scraper(language=language)
+if scraper == "Selenium":
+    import selScraper
+    duck = selScraper.Scraper(language=language)
+else:
+    import soupyScraper
+    duck = soupyScraper.Scraper(language=language)
 sim = graphics.Sim()
 sim.setGraph(graph)
 duck.setGraph(graph)
@@ -44,6 +48,8 @@ if noOrphans:
             print("No more orphan nodes to process.", orphanNodeList)
             break
 
+if scraper == "Selenium":
+    duck.browser.quit()
 graph.generateParentDict()
 print("DONE - generated", len(graph.graphDict), "nodes")
 

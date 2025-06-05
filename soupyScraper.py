@@ -63,5 +63,5 @@ class Scraper():
                 pagesVisited += 1
             else:  # Skip already visited nodes
                 print("Skipping already visited page:", node[30:])
-                return pagesVisited
+                break
         return pagesVisited
