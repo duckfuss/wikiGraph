@@ -16,7 +16,7 @@ this is an educational project only
 - selenium or BeautifulSoup  (scrape wikipedia)
 - pygame    (display network)
 - pymunk    (spring physics)
-- firefox
+- firefox (if using selenium)
 
 # Controls
 
