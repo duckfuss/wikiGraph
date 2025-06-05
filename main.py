@@ -1,9 +1,20 @@
 import grapher
-import scraper
+import soupyScraper
 import graphics
 import time
 
-duck = scraper.Scraper()
+# change at will:
+#------------------------------------#
+maxSeeds = 1000
+pageDepth = 50  # doesn't really matter if noOrphans is set to True
+pageBreadth = 1
+noOrphans = True
+language = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
+# Note: Non-Latin characters have weird urls so don't display nicely
+#------------------------------------#
+
+# initialise stuff
+duck = soupyScraper.Scraper(language=language)
 graph = grapher.Graph()
 sim = graphics.Sim()
 sim.setGraph(graph)
@@ -13,15 +24,6 @@ running = True
 start = time.time()
 pagesVisited, SLIndex = 0, 0
 
-# change at will:
-#------------------------------------#
-maxSeeds = 2
-pageDepth = 30  # doesn't really matter if noOrphans is set to True
-pageBreadth = 1
-noOrphans = True
-lanugage = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
-# Note: Non-Latin characters have weird urls so don't display nicely
-#------------------------------------#
 
 def exploreLinksAndGraph(startSite, breadth, depth):
     pagesVisited = 0
@@ -45,7 +47,7 @@ def exploreLinksAndGraph(startSite, breadth, depth):
 # traverse wikipedia
 for seed in range(maxSeeds):
     print("\nTRAVERSING---------------", seed)
-    exploreLinksAndGraph(duck.getRandomPage(language=lanugage), pageBreadth, pageDepth)
+    exploreLinksAndGraph(duck.getRandomPage(), pageBreadth, pageDepth)
 
 if noOrphans:
     for i in range(500): # functionally while True
@@ -59,7 +61,7 @@ if noOrphans:
             print("No more orphan nodes to process.", orphanNodeList)
             break
 
-duck.browser.quit()
+#duck.browser.quit()
 graph.generateParentDict()
 print("DONE - generated", len(graph.graphDict), "nodes")
 
