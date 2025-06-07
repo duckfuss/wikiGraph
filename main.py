@@ -1,14 +1,14 @@
 import src.grapher as grapher
 import src.graphics as graphics
 import time
-
+print("hi")
 # change at will:
 #------------------------------------#
 maxSeeds = 10
 pageDepth = 50  # doesn't really matter if noOrphans is set to True
 pageBreadth = 1
 noOrphans = True
-scraper = "Selenium" # Supported: Selenium, BeautifulSoup
+scraper = "BeautifulSoup" # Supported: Selenium, BeautifulSoup
 language = "English" # Supported: English, French, Chinese, Japanese, Spanish, Latin, Scots
 # Note: Non-Latin characters have weird urls so don't display nicely
 #------------------------------------#
@@ -51,11 +51,13 @@ if noOrphans:
 if scraper == "Selenium":
     duck.browser.quit()
 graph.generateParentDict()
-print("DONE - generated", len(graph.graphDict), "nodes")
-
+print("\n\nDONE - generated", len(graph.graphDict), "nodes")
+print("Done in", round(time.time() - start, 3), "seconds")
+print(round((time.time() - start)/len(graph.graphDict), 3), "seconds per node")
 # Generate graph visualization
 for node, links in graph.graphDict.items():
     sim.introduceNode(node, links)
+
 
 # Keep the graphics running in loop
 localSelected = "bob"  # ensures update highlight on first loop
