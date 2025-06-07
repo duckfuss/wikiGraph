@@ -1,5 +1,5 @@
-import src.grapher as grapher
-import src.graphics as graphics
+import grapher
+import graphics
 import time
 print("hi")
 # change at will:
@@ -16,10 +16,10 @@ language = "English" # Supported: English, French, Chinese, Japanese, Spanish, L
 # initialise stuff
 graph = grapher.Graph()
 if scraper == "Selenium":
-    import src.selScraper as selScraper
+    import selScraper
     duck = selScraper.Scraper(language=language)
 else:
-    import src.soupyScraper as soupyScraper
+    import soupyScraper
     duck = soupyScraper.Scraper(language=language)
 sim = graphics.Sim()
 sim.setGraph(graph)
