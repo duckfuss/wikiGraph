@@ -31,7 +31,7 @@ class Sim():
         self.simulation = True          # Flag to control simulation step
         self.collisionsEnabled = False  # Flag to control collision detection
         self.highlightMode = 0          # 0=OFF, 1=weightCol, 2=descendantHighlight
-        self.repulsionEnabled = True  # Add this line
+        self.repulsionEnabled = True  
 
     def setGraph(self, graph):
         self.graph = graph
@@ -148,7 +148,7 @@ class Sim():
                         self.selected = name
                     else:
                         self.selected = None
-                elif event.button == 3:  # Right click for panning
+                elif event.button == 3:  # Right click = panning
                     self.panStart = pygame.Vector2(event.pos)
                     self.panOffsetStart = self.offset
             if event.type == pygame.MOUSEBUTTONUP:
@@ -177,9 +177,9 @@ class Sim():
                     self.simulation = not self.simulation
                 elif event.key == pygame.K_b: # toggle text rendering
                     self.renderAllText = not self.renderAllText
-                elif event.key == pygame.K_c:
+                elif event.key == pygame.K_c: # toggle node highlighting
                     self.highlightMode = (self.highlightMode + 1) % 3
-                elif event.key == pygame.K_x:
+                elif event.key == pygame.K_x: # toggle repulsion
                     self.repulsionEnabled = not self.repulsionEnabled
         return True
 
@@ -196,7 +196,7 @@ class Sim():
         if name == self.selected:
             return "YELLOW"
         elif name in dataList:
-            depth = depthMap.get(name, 0)  # Use .get() to avoid KeyError
+            depth = depthMap.get(name, 0)
             intensity = int((depth / maxDepth) * 255)
             return (255, intensity, intensity)
         else:
@@ -220,13 +220,11 @@ class Sim():
         highlightList = []
         if self.highlightMode == 1:  # Direct Parent-based
             parentDict = self.graph.parentDict
-            # Reverse the parent count: maxCount - count
             parentCounts = {name: len(parentDict.get(name, set())) for name in self.bodyDict.keys()}
             maxCount = max(parentCounts.values(), default=1)
             depthMap = {name: maxCount - count for name, count in parentCounts.items()}
             highlightList = [name for name, depth in sorted(depthMap.items(), key=lambda item: item[1], reverse=True)]
         elif self.highlightMode == 2:  # ALL Descendant-based
-            # Reverse the descendant count: maxCount - count
             descendantCounts = self.computeDescendantCounts()
             maxCount = max(descendantCounts.values(), default=1)
             depthMap = {name: maxCount - count for name, count in descendantCounts.items()}
@@ -303,7 +301,7 @@ class Sim():
             self.screen.blit(textSurface, (10, y_offset))
             y_offset += rect.height + 2
 
-        # --- Selected node's child chain display ---
+        # display children of selected node on status
         if self.selected:
             children_chain = self.graph.getChildren(self.selected)
             for idx, node in enumerate(children_chain):

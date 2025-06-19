@@ -34,7 +34,8 @@ class Scraper():
         soup = BeautifulSoup(r.text, "lxml")
         for paragraph in soup.find_all("p"):
             for link in paragraph.find_all("a"): # type: ignore
-                if link.get("href") is None or link.find_parent("sup") or link.find_parent("tr") or link.find_parent("span"): # type: ignore
+                href = link.get("href")
+                if href is None or link.find_parent("sup") or link.find_parent("tr") or link.find_parent("span"): # type: ignore
                     # ignore None and superscript (citations)
                     continue
                 if link.get("class") and "external" in link.get("class"): # type: ignore
@@ -42,7 +43,14 @@ class Scraper():
                     continue
                 if link.get("title") and any(ig in link.get("title") for ig in self.ignoreList): # type: ignore
                     continue
-                linkList.append(linkStarter + link.get("href")) # type: ignore
+                # Fix: Only prepend linkStarter if href is a relative path
+                if href.startswith("http"):
+                    full_url = href
+                elif href.startswith("/"):
+                    full_url = linkStarter + href
+                else:
+                    continue  # skip malformed or anchor links
+                linkList.append(full_url)
                 if len(linkList) >= breadth:
                     return linkList
         return linkList

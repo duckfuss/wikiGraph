@@ -4,7 +4,7 @@ import time
 print("hi")
 # change at will:
 #------------------------------------#
-maxSeeds = 10
+maxSeeds = 250
 pageDepth = 50  # doesn't really matter if noOrphans is set to True
 pageBreadth = 1
 noOrphans = True
